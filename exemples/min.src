@@ -1,0 +1,10 @@
+
+begin
+integer x;
+integer y;
+while (x>0) do
+begin
+ y:= y+1; x := x-1
+end;
+return
+end

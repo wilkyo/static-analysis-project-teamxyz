@@ -1,0 +1,22 @@
+function pouet(arg1 : integer, arg2 : integer) : decimal is
+begin
+integer loc1, loc2;
+	loc2 := 4;
+	while (true && false) do
+	begin
+		loc1 := loc2 + 1
+	end;
+	return 1.0
+end
+
+begin
+array(decimal) a;
+	a := new array(decimal)[10];
+	a[3] := 3.0;
+	begin
+		decimal b;
+		integer c;
+		a[c] := b + b
+	end ;
+	pouet(2, 1)
+end

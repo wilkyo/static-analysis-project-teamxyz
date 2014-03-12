@@ -1,0 +1,18 @@
+function fibo(n : integer) : integer is
+begin
+	integer i, t;
+	if (n < 0) then
+		return 0
+	else
+		t := 3 ;
+	t := 0;
+	t := 1;
+	i := 2;
+	while (i < n) do
+		t := t + t ;
+	return t
+end
+
+begin
+	fibo(12)
+end

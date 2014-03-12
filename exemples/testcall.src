@@ -1,0 +1,6 @@
+procedure test(x0:integer, x1:integer, x2:integer, x3:integer, x4:integer,x5:integer, x6 : integer) is
+	 return
+
+begin
+test(0,1,2,3,4,5,6)	
+end

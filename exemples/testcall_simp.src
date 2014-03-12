@@ -1,0 +1,9 @@
+procedure test(x0:integer, x1:integer, x2:integer, x3:integer) is
+begin
+integer lol;
+	 return
+end
+
+begin
+test(0,1,2,3)	
+end
