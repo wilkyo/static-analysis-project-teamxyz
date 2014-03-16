@@ -13,7 +13,7 @@ IMAGE_VIEWER=eog
 LEX_FILE=lexparser.lex
 YACC_FILE=synparser.y
 LIBS=includes/node.c includes/dotoutput.c includes/symtable.c
-SRC=tests/min.src
+SRC=exemples/exemple2.src
 
 # Générés
 AUTOMATON_FILE=afd.c
@@ -63,6 +63,7 @@ show: $(TREE_FILE).$(TREE_FILE_TYPE)
 # make clean nettoie les fichiers générés
 clean:
 	@echo "===== Cleaning ====="
-	rm -f $(SYNTAXIC_ANALYSER) $(SYNTAXIC_ANALYSER).c $(SYNTAXIC_ANALYSER).h $(AUTOMATON_FILE) $(TREE_FILE).dot $(TREE_FILE).$(TREE_FILE_TYPE)
+	rm -f $(SYNTAXIC_ANALYSER) $(SYNTAXIC_ANALYSER).c $(SYNTAXIC_ANALYSER).h $(AUTOMATON_FILE) $(TREE_FILE).dot $(TREE_FILE).$(TREE_FILE_TYPE) &\
+	rm -f includes/*~
 
 

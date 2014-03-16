@@ -331,7 +331,7 @@ node * mknode_vdecl(int line, int col, node * typeDecl, node * idList);
  * \param statExpr The statement of the program
  * \return A pointer to the node created
  */
-node * mknode_program(int line, int col, node * declList, node * statExpr);
+node * mknode_program(int line, int col, char * pName, node * declList, node * statExpr);
 
 /**
  * \fn node * mknode_function_declaration(int line, int col, node * id, node * paramsList, node * returnType, node * statExpr);
@@ -355,7 +355,5 @@ node * mknode_function_declaration(int line, int col, node * id, node * paramsLi
  * \return A pointer to the node created
  */
 node * mknode_procedure_declaration(int line, int col, node * id, node * paramsList, node * statExpr);
-
-int start_semantic_analysis(node *root) ;
 
 #endif

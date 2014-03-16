@@ -93,27 +93,27 @@ int print(node *n, FILE *f, int i, char *res) {
 				case(OP_LOWER_THAN):
 					snprintf(res, NCHAR, "lt_%d", i);
 					strcpy(mylabel, res);
-					return rec_print(n, f, i, mylabel, 1);
+					return rec_print(n, f, i, mylabel, 2);
 				case(OP_GREATER_THAN):
 					snprintf(res, NCHAR, "gt_%d", i);
 					strcpy(mylabel, res);
-					return rec_print(n, f, i, mylabel, 1);
+					return rec_print(n, f, i, mylabel, 2);
 				case(OP_LOWER_EQUALS):
 					snprintf(res, NCHAR, "le_%d", i);
 					strcpy(mylabel, res);
-					return rec_print(n, f, i, mylabel, 1);
+					return rec_print(n, f, i, mylabel, 2);
 				case(OP_GREATER_EQUALS):
 					snprintf(res, NCHAR, "ge_%d", i);
 					strcpy(mylabel, res);
-					return rec_print(n, f, i, mylabel, 1);
+					return rec_print(n, f, i, mylabel, 2);
 				case(OP_EQUALS):
 					snprintf(res, NCHAR, "eq_%d", i);
 					strcpy(mylabel, res);
-					return rec_print(n, f, i, mylabel, 1);
+					return rec_print(n, f, i, mylabel, 2);
 				case(OP_NOT_EQUALS):
 					snprintf(res, NCHAR, "neq=_%d", i);
 					strcpy(mylabel, res);
-					return rec_print(n, f, i, mylabel, 1);
+					return rec_print(n, f, i, mylabel, 2);
 				case(OP_AND):
 					snprintf(res, NCHAR, "and_%d", i);
 					strcpy(mylabel, res);

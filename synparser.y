@@ -16,8 +16,8 @@
 %union { char* stringT; int intT; float floatT; node *nodeT; }
 %token L_PARENT R_PARENT L_BRACKET R_BRACKET
 %token COMMA SEMI COLON MINUS PLUS MULT DIV ASSIGN NEQ LE GE LT GT EQ NOT AND OR
-%token TYPE_INT TYPE_DECIMAL TYPE_ARRAY
-%token NEW FREE RETURN IF THEN ELSE WHILE DO START END FUNCTION PROCEDURE IS PROGRAM
+%token TYPE_INT TYPE_BOOL TYPE_FLOAT
+%token PROGRAM START END RETURN IF THEN ELSE WHILE DO PROCEDURE RES CALL
 %token VALUE_TRUE VALUE_FALSE VALUE_INT VALUE_DECIMAL IDENTIFIER
 %type <stringT> IDENTIFIER
 %type <intT> VALUE_INT VALUE_TRUE VALUE_FALSE
@@ -69,8 +69,8 @@ boolean_expression
 
 type
   : TYPE_INT { $$ = mkleaf_type_int(line, col); }
-  | TYPE_DECIMAL { $$ = mkleaf_type_decimal(line, col); }
-  | TYPE_ARRAY L_PARENT type R_PARENT { $$ = mknode_type_array(line, col, $3); }
+  | TYPE_FLOAT { $$ = mkleaf_type_decimal(line, col); }
+  | TYPE_INT L_PARENT VALUE_INT R_PARENT { $$ = mknode_type_array(line, col, mkleaf_int(line, col, $3)); }
 	;
 
 lhs
@@ -82,13 +82,12 @@ instruction
   : RETURN arithmetic_expression { $$ = mknode_return(line, col, $2); }
   | RETURN { $$ = mknode_return(line, col, NULL); }
   | lhs ASSIGN assign_value { $$ = mknode_assign(line, col, $1, $3); }
-  | FREE L_PARENT arithmetic_expression R_PARENT { $$ = mknode_free(line, col, $3); }
   | function_call { $$ = $1; }
   ;
 
 assign_value
   : arithmetic_expression { $$ = $1; }
-  | NEW type L_BRACKET arithmetic_expression R_BRACKET { $$ = mknode_new(line, col, $2, $4); }
+  | type L_BRACKET arithmetic_expression R_BRACKET { $$ = mknode_new(line, col, $1, $3); }
   | function_call { $$ = $1; }
   ;
 
@@ -105,7 +104,7 @@ expression_list
 statement
   : instruction { $$ = $1; }
   | IF boolean_expression THEN statement ELSE statement { $$ = mknode_if(line, col, $2, $4, $6); }
-  | WHILE boolean_expression DO statement { $$ = mknode_while(line, col, $2, $4) ; }
+  | WHILE boolean_expression DO L_PARENT block_statement R_PARENT { $$ = mknode_while(line, col, $2, $5) ; }
   | START vdecl_list block_statement END { $$ = mknode_start(line, col, $2, $3); }
   | START block_statement END { $$ = mknode_start(line, col, NULL, $2); }
 	;
@@ -130,8 +129,8 @@ identifier_list
 	;
 
 program
-  : pdecl_list statement { $$ = mknode_program(line, col, $1, $2); }
-	| statement { $$ = mknode_program(line, col, NULL, $1); }
+  : PROGRAM IDENTIFIER pdecl_list statement { $$ = mknode_program(line, col, $2, $3, $4); }
+	| PROGRAM IDENTIFIER statement { $$ = mknode_program(line, col, $2, NULL, $3); }
 	;
 
 pdecl_list
@@ -140,10 +139,10 @@ pdecl_list
 	;
 
 pdecl
-  : FUNCTION IDENTIFIER L_PARENT parameter_list R_PARENT COLON type IS statement { $$ = mknode_function_declaration(line, col, mkleaf_identifier(line, col, $2), $4, $7, $9); }
-  | FUNCTION IDENTIFIER L_PARENT R_PARENT COLON type IS statement { $$ = mknode_function_declaration(line, col, mkleaf_identifier(line, col, $2), NULL, $6, $8); }
-  | PROCEDURE IDENTIFIER L_PARENT parameter_list R_PARENT IS statement { $$ = mknode_procedure_declaration(line, col, mkleaf_identifier(line, col, $2), $4, $7); }
-  | PROCEDURE IDENTIFIER L_PARENT R_PARENT IS statement { $$ = mknode_procedure_declaration(line, col, mkleaf_identifier(line, col, $2), NULL, $6) ; }
+  : PROCEDURE IDENTIFIER L_PARENT parameter_list COMMA RES type R_PARENT statement { $$ = mknode_function_declaration(line, col, mkleaf_identifier(line, col, $2), $4, $7, $9); }
+  | PROCEDURE IDENTIFIER L_PARENT RES type R_PARENT statement { $$ = mknode_function_declaration(line, col, mkleaf_identifier(line, col, $2), NULL, $5, $7); }
+  | PROCEDURE IDENTIFIER L_PARENT parameter_list R_PARENT statement { $$ = mknode_procedure_declaration(line, col, mkleaf_identifier(line, col, $2), $4, $6); }
+  | PROCEDURE IDENTIFIER L_PARENT R_PARENT statement { $$ = mknode_procedure_declaration(line, col, mkleaf_identifier(line, col, $2), NULL, $5) ; }
 	;
 
 parameter_list
@@ -162,9 +161,9 @@ int main(int argc, char ** argv) {
 		yyin = fopen(argv[1],"r");
 	if(yyin != NULL) {
 		if (!yyparse()) {
-			printf("Syntactic analysis successful\n");
-			if (start_semantic_analysis(root))
-				printf("Semantic analysis successful\n");
+			printf("Syntaxic analysis successful\n");
+			//if (start_semantic_analysis(root))
+			//	printf("Semantic analysis successful\n");
 			fclose(yyin);
 			if(PROD_INTER) // Car ne fonctionne pas pour tous
 				produce_intermediate_code(root);

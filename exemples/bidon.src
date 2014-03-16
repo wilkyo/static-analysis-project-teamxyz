@@ -1,0 +1,6 @@
+program bidon
+begin
+int x, y; x := 100;
+y := x * 2;
+x := x * y
+end

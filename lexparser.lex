@@ -35,24 +35,22 @@ identifier		[a-z][a-zA-Z0-9]*
 &&			{ count(); return(AND); }
 \|\|			{ count(); return(OR); }
 
-"integer"			{ count(); return(TYPE_INT); }
-"decimal"		{ count(); return(TYPE_DECIMAL); }
-"array"			{ count(); return(TYPE_ARRAY); }
+"int"			{ count(); return(TYPE_INT); }
+"bool"			{ count(); return(TYPE_BOOL); }
+"float"		{ count(); return(TYPE_FLOAT); }
 
-"new"			{ count(); return(NEW); }
-"free"			{ count(); return(FREE); }
+"program"		{ count(); return(PROGRAM); }
+"begin"			{ count(); return(START); }
+"end"			{ count(); return(END); }
 "return"		{ count(); return(RETURN); }
 "if"			{ count(); return(IF); }
 "then"			{ count(); return(THEN); }
 "else"			{ count(); return(ELSE); }
 "while"			{ count(); return(WHILE); }
 "do"			{ count(); return(DO); }
-"begin"			{ count(); return(START); }
-"end"			{ count(); return(END); }
-"function"		{ count(); return(FUNCTION); }
-"procedure"		{ count(); return(PROCEDURE); }
-"is"			{ count(); return(IS); }
-"Program"		{ count(); return(PROGRAM); }
+"proc"			{ count(); return(PROCEDURE); }
+"res"			{ count(); return(RES); }
+"call"			{ count(); return(CALL); }
 
 "true"			{ count(); return(VALUE_TRUE); }
 "false"			{ count(); return(VALUE_FALSE); }
