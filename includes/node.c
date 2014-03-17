@@ -1,4 +1,4 @@
-#define DEBUG 1
+#define DEBUG 0
 #define MAIN 0
 
 #include "node.h"
@@ -54,6 +54,10 @@ node * mk_leaf_type(int line, int col, char * lexeme, type nodeType) {
 	return n;
 }
 
+node * mkleaf_skip(int line, int col) {
+	return mk_leaf_cst(line, col, "SKIP", NULL, T_SKIP);
+}
+
 node * mkleaf_true(int line, int col) {
 	value * v = malloc(sizeof(value));
 	v->intT = 1;
@@ -86,6 +90,10 @@ node * mkleaf_identifier(int line, int col, char * identifier) {
 
 node * mkleaf_type_int(int line, int col) {
 	return mk_leaf_type(line, col, "TYPE_INT", T_TYPE_INT);
+}
+
+node * mkleaf_type_bool(int line, int col) {
+	return mk_leaf_type(line, col, "TYPE_BOOL", T_TYPE_BOOL);
 }
 
 node * mkleaf_type_decimal(int line, int col) {
@@ -260,19 +268,21 @@ node * mknode_vdecl(int line, int col, node * typeDecl, node * idList) {
 	return mk_node(line, col, "DECLARATION_STATEMENT", info, T_DECLARATION_STATEMENT, children);
 }
 
-node * mknode_program(int line, int col, char * pName, node * declList, node * statExpr) {
+node * mknode_program(int line, int col, node * id, node * declList, node * statExpr) {
 	attribute * info = malloc(sizeof(attribute));
 	node ** children;
 	info->val = malloc(sizeof(value));
 	if(declList == NULL) {
 		info->val->intT = 0;
-		children = malloc(sizeof(node));
-		children[0] = statExpr;
+		children = malloc(2 * sizeof(node));
+		children[0] = id;
+		children[1] = statExpr;
 	} else {
 		info->val->intT = declList->info->val->intT; // Number of declarations
-		children = malloc(2 * sizeof(node));
-		children[0] = declList;
-		children[1] = statExpr;
+		children = malloc(3 * sizeof(node));
+		children[0] = id;
+		children[1] = declList;
+		children[2] = statExpr;
 	}
 	root = mk_node(line, col, "PROGRAM", info, T_PROGRAM, children);
 	return root;

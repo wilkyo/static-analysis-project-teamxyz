@@ -13,7 +13,7 @@ IMAGE_VIEWER=eog
 LEX_FILE=lexparser.lex
 YACC_FILE=synparser.y
 LIBS=includes/node.c includes/dotoutput.c includes/symtable.c
-SRC=exemples/exemple2.src
+SRC=exemples/f5ex1.src
 
 # Générés
 AUTOMATON_FILE=afd.c

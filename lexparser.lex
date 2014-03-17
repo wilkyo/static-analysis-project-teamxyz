@@ -51,6 +51,7 @@ identifier		[a-z][a-zA-Z0-9]*
 "proc"			{ count(); return(PROCEDURE); }
 "res"			{ count(); return(RES); }
 "call"			{ count(); return(CALL); }
+"skip"			{ count(); return(SKIP); }
 
 "true"			{ count(); return(VALUE_TRUE); }
 "false"			{ count(); return(VALUE_FALSE); }

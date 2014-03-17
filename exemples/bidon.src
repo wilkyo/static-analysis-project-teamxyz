@@ -1,6 +1,6 @@
 program bidon
 begin
 int x, y; x := 100;
-y := x * 2;
+y := x * 2; skip;
 x := x * y
 end

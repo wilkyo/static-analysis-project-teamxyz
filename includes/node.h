@@ -28,8 +28,8 @@ union attribute {
 
 enum type {
 	T_VALUE_TRUE, T_VALUE_FALSE, T_VALUE_INT, T_VALUE_DECIMAL, T_IDENTIFIER, T_ARRAY_INDEX,
-	T_TYPE_INT, T_TYPE_DECIMAL, T_TYPE_ARRAY, T_RETURN, T_ASSIGN, T_FREE, T_NEW,
-	T_FUNCTION_CALL, T_PARAMETER, T_LIST,
+	T_TYPE_INT, T_TYPE_BOOL, T_TYPE_DECIMAL, T_TYPE_ARRAY, T_RETURN, T_ASSIGN, T_FREE, T_NEW,
+	T_FUNCTION_CALL, T_PARAMETER, T_LIST, T_SKIP,
 	T_UNARY_ARITHMETIC, T_BINARY_ARITHMETIC, T_UNARY_BOOLEAN, T_BINARY_BOOLEAN,
 	T_IF_STATEMENT, T_WHILE_STATEMENT, T_BLOCK_STATEMENT, T_DECLARATION_STATEMENT, T_PROGRAM,
 	T_FUNCTION_DECLARATION, T_PROCEDURE_DECLARATION
@@ -95,6 +95,14 @@ node * mk_node(int line, int col, char * lexeme, attribute * info, type nodeType
 /*********************   Methods for the parser   *********************/
 
 /**
+ * \fn node * mkleaf_skip(int line, int col);
+ * \brief Creates a node of type skip.
+ *
+ * \return A pointer to the node created
+ */
+node * mkleaf_skip(int line, int col);
+
+/**
  * \fn node * mkleaf_int(int line, int col, int intT);
  * \brief Creates a node of type integer.
  *
@@ -144,6 +152,14 @@ node * mkleaf_false(int line, int col);
  * \return A pointer to the node created
  */
 node * mkleaf_type_int(int line, int col);
+
+/**
+ * \fn node * mkleaf_type_bool(int line, int col, );
+ * \brief Creates a node of type bool type.
+ *
+ * \return A pointer to the node created
+ */
+node * mkleaf_type_bool(int line, int col);
 
 /**
  * \fn node * mkleaf_type_decimal(int line, int col, );
@@ -327,11 +343,12 @@ node * mknode_vdecl(int line, int col, node * typeDecl, node * idList);
  * \fn node * mknode_program(int line, int col, node * declList, node * statExpr);
  * \brief Creates a node of type program.
  *
+ * \param id The identifier of the program
  * \param declList The declarations list of the program
  * \param statExpr The statement of the program
  * \return A pointer to the node created
  */
-node * mknode_program(int line, int col, char * pName, node * declList, node * statExpr);
+node * mknode_program(int line, int col, node * id, node * declList, node * statExpr);
 
 /**
  * \fn node * mknode_function_declaration(int line, int col, node * id, node * paramsList, node * returnType, node * statExpr);

@@ -183,9 +183,8 @@ int print(node *n, FILE *f, int i, char *res) {
 		case(T_PROGRAM):
 			snprintf(res, NCHAR, "program_%d", i);
 			strcpy(mylabel, res);
-			if (n->info->val->intT == 0)
-				return rec_print(n, f, i, mylabel, 1);
-			return rec_print(n, f, i, mylabel, 2);
+			return rec_print(n, f, i, mylabel, (n->info->val->intT == 0 ? 1 : 2)
+				+ (n->children[0] == NULL ? 0 : 1));
     case(T_FUNCTION_DECLARATION):
 			snprintf(res, NCHAR, "fun_decl_%d", i);
 			strcpy(mylabel, res);
