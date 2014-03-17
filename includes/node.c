@@ -2,7 +2,6 @@
 #define MAIN 0
 
 #include "node.h"
-#include "symtable.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

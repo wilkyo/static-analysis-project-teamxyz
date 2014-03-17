@@ -12,8 +12,8 @@ IMAGE_VIEWER=eog
 # Sources
 LEX_FILE=lexparser.lex
 YACC_FILE=synparser.y
-LIBS=includes/node.c includes/dotoutput.c includes/symtable.c
-SRC=exemples/declarations.src
+LIBS=includes/node.c includes/static_analysis.c includes/dotoutput.c
+SRC=exemples/bidon.src
 
 # Générés
 AUTOMATON_FILE=afd.c

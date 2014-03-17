@@ -6,8 +6,8 @@
 	int col;
 	extern FILE * yyin;
 	#include "includes/node.h"
+	#include "includes/static_analysis.h"
 	#include "includes/dotoutput.h"
-	#include "includes/intermediate.h"
 	extern node * root;
 %}
 
@@ -163,11 +163,21 @@ int main(int argc, char ** argv) {
 	if(yyin != NULL) {
 		if (!yyparse()) {
 			printf("Syntaxic analysis successful\n");
-			//if (start_semantic_analysis(root))
-			//	printf("Semantic analysis successful\n");
 			fclose(yyin);
-			if(PROD_INTER) // Car ne fonctionne pas pour tous
-				produce_intermediate_code(root);
+	
+			// Analyse statique
+			declaration * vars = getVariablesDeclarations(root);
+			block_list * blocks = getBlockList(root);
+			flow_list * flows = getFlow(root);
+			flow_list * flowsR = getFlowR(flows);
+			int initial = getInit(flows);
+			int_list * finals = getFinal(flows);
+
+			if (start_static_analysis(vars, initial, finals, flows, flowsR, blocks))
+				printf("Static analysis successful\n");
+			else
+				printf("Static analysis failed\n");
+
 			to_dot("ast.dot", root);
 			return 0;
 		}
