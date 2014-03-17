@@ -52,7 +52,7 @@ pdecl_list
 	;
 
 pdecl
-	: PROCEDURE IDENTIFIER L_PARENT parameter_list COMMA RES type IDENTIFIER R_PARENT START statements END { $$ = mknode_function_declaration(line, col, mkleaf_identifier(line, col, $2), $4, $7, $11); }
+	: PROCEDURE IDENTIFIER L_PARENT parameter_list COMMA RES type IDENTIFIER R_PARENT START statements END { $$ = mknode_function_declaration(line, col, mkleaf_identifier(line, col, $2), $4, mknode_parameter(line, col, mkleaf_identifier(line, col, $8), $7), $11); }
 	| PROCEDURE IDENTIFIER L_PARENT parameter_list R_PARENT START statements END { $$ = mknode_procedure_declaration(line, col, mkleaf_identifier(line, col, $2), $4, $7); }
 	;
 
@@ -84,7 +84,7 @@ type
 
 block
 	: statement { $$ = $1; }
-	| L_PARENT statements R_PARENT { $$ = $2; }
+	| L_PARENT statements R_PARENT { $$ = mknode_start(line, col, NULL, $2); }
 	;
 
 statements

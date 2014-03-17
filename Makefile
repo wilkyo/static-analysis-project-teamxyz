@@ -13,7 +13,7 @@ IMAGE_VIEWER=eog
 LEX_FILE=lexparser.lex
 YACC_FILE=synparser.y
 LIBS=includes/node.c includes/dotoutput.c includes/symtable.c
-SRC=exemples/f5ex1.src
+SRC=exemples/declarations.src
 
 # Générés
 AUTOMATON_FILE=afd.c
@@ -40,7 +40,7 @@ $(SYNTAXIC_ANALYSER).c: $(YACC_FILE)
 	bison -d -o $(SYNTAXIC_ANALYSER).c $(YACC_FILE)
 
 # make parser compile l'analyseur final
-$(SYNTAXIC_ANALYSER): $(AUTOMATON_FILE) $(SYNTAXIC_ANALYSER).c
+$(SYNTAXIC_ANALYSER): $(AUTOMATON_FILE) $(SYNTAXIC_ANALYSER).c $(LIBS)
 	@echo "===== Compiling "$(SYNTAXIC_ANALYSER)" ====="
 	gcc -o $(SYNTAXIC_ANALYSER) $(LIBS) $(SYNTAXIC_ANALYSER).c $(AUTOMATON_FILE) -DPROD_INTER=0
 

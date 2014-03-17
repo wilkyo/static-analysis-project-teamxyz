@@ -360,7 +360,7 @@ node * mknode_program(int line, int col, node * id, node * declList, node * stat
  * \param statExpr The statement of the function
  * \return A pointer to the node created
  */
-node * mknode_function_declaration(int line, int col, node * id, node * paramsList, node * returnType, node * statExpr);
+node * mknode_function_declaration(int line, int col, node * id, node * paramsList, node * returnParam, node * statExpr);
 
 /**
  * \fn node * mknode_procedure_declaration(int line, int col, node * id, node * paramsList, node * statExpr);

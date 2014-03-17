@@ -1,0 +1,22 @@
+program declarations
+proc fib(int z, int u, res int v)
+	begin
+		if z < 3 then v := u+1
+		else (call fib(z-1, u, v); call fib(z-2, v, v))
+	end
+proc print(int e)
+	begin
+		while e > 0 do
+			e := e - 1
+	end
+proc printMin(int xx, int xy)
+	begin
+		if xx < yy then
+			call print(xx)
+		else
+			call print(yy)
+	end
+begin
+int x, y;
+call fib(x, 0, y)
+end

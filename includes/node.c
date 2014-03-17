@@ -288,7 +288,7 @@ node * mknode_program(int line, int col, node * id, node * declList, node * stat
 	return root;
 }
 
-node * mknode_function_declaration(int line, int col, node * id, node * paramsList, node * returnType, node * statExpr) {
+node * mknode_function_declaration(int line, int col, node * id, node * paramsList, node * returnParam, node * statExpr) {
 	attribute * info = malloc(sizeof(attribute));
 	node ** children;
 	info->val = malloc(sizeof(value));
@@ -296,14 +296,14 @@ node * mknode_function_declaration(int line, int col, node * id, node * paramsLi
 		info->val->intT = 0; // Number of parameters
 		children = malloc(3 * sizeof(node));
 		children[0] = id;
-		children[1] = returnType;
+		children[1] = returnParam;
 		children[2] = statExpr;
 	} else {
 		info->val->intT = paramsList->info->val->intT;
 		children = malloc(4 * sizeof(node));
 		children[0] = id;
 		children[1] = paramsList;
-		children[2] = returnType;
+		children[2] = returnParam;
 		children[3] = statExpr;
 	}
 	return mk_node(line, col, "FUNCTION_DECLARATION", info, T_FUNCTION_DECLARATION, children);

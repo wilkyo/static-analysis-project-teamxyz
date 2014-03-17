@@ -40,7 +40,7 @@ int list_print(node *n, FILE *f, int i, char *mylabel) {
 
 int print(node *n, FILE *f, int i, char *res) {
 	char mylabel[NCHAR];
-  switch(n->nodeType) {
+	switch(n->nodeType) {
 		case(T_VALUE_TRUE):
 			snprintf(res, NCHAR, "true_%d", i);
 			return i + 1;
@@ -123,6 +123,9 @@ int print(node *n, FILE *f, int i, char *res) {
 					strcpy(mylabel, res);
 					return rec_print(n, f, i, mylabel, 2);
 			}
+		case(T_SKIP):
+			snprintf(res, NCHAR, "skip_%d", i);
+			return i + 1;
 		case(T_TYPE_INT):
 			snprintf(res, NCHAR, "int_%d", i);
 			return i + 1;
