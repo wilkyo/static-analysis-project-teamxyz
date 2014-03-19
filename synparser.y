@@ -165,18 +165,21 @@ int main(int argc, char ** argv) {
 			printf("Syntaxic analysis successful\n");
 			fclose(yyin);
 	
-			// Analyse statique
-			declaration * vars = getVariablesDeclarations(root);
-			block_list * blocks = getBlockList(root);
-			flow_list * flows = getFlow(root);
-			flow_list * flowsR = getFlowR(flows);
-			int initial = getInit(flows);
-			int_list * finals = getFinal(flows);
+			if(checkTreeBeforeAnalysis(root)) {
+				// Analyse statique
+				declaration * vars = getVariablesDeclarations(root);
+				initScan(root);
+				block_list * blocks = getBlocks();
+				flow_list * flows = getFlow();
+				flow_list * flowsR = getFlowR(flows);
+				int initial = getInit(flows);
+				int_list * finals = getFinal(flows);
 
-			if (start_static_analysis(vars, initial, finals, flows, flowsR, blocks))
-				printf("Static analysis successful\n");
-			else
-				printf("Static analysis failed\n");
+				if (start_static_analysis(vars, initial, finals, flows, flowsR, blocks))
+					printf("Static analysis successful\n");
+				else
+					printf("Static analysis failed\n");
+			}
 
 			to_dot("ast.dot", root);
 			return 0;

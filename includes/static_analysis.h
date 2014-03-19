@@ -15,7 +15,7 @@ typedef struct flow flow;
 
 // 3 types de blocks.
 enum blockType {
-	B_ASSIGN, B_BOOLEAN, B_SKIP
+	B_ASSIGN, B_BOOL_EXP, B_SKIP
 };
 
 /*
@@ -61,9 +61,32 @@ struct flow {
 
 /* Methods */
 
+/**
+ * Cherche si les types définis de l'arbre sont autorisés pour l'analyse statique.
+ */
+int checkTreeBeforeAnalysis(node * root);
+
+/* Constructeurs */
+
+block * mk_block_assign(int label, type sType, int assignedVar, int_list * vars);
+block * mk_block_bool_exp(int label, int_list * vars);
+block * mk_block_skip(int label);
+block_list * mk_block_list(block * b, block_list * list);
+
+/* Getters */
+
+block * getBlockWithLabel(block_list * list, int label);
+
+/* Analysis */
+
 declaration * getVariablesDeclarations(node * root);
-block_list * getBlockList(node * root);
-flow_list * getFlow(node * root);
+/**
+ * Scanne l'arbre et crée les blocks et le flow.
+ * Permet de labeller en direct.
+ */
+void initScan(node * root);
+block_list * getBlocks();
+flow_list * getFlow();
 flow_list * getFlowR(flow_list * list);
 int getInit(flow_list * list);
 int_list * getFinal(flow_list * list);
