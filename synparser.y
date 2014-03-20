@@ -167,13 +167,13 @@ int main(int argc, char ** argv) {
 	
 			if(checkTreeBeforeAnalysis(root)) {
 				// Analyse statique
-				declaration * vars = getVariablesDeclarations(root);
 				initScan(root);
+				declaration * vars = getVariablesDeclarations();
 				block_list * blocks = getBlocks();
 				flow_list * flows = getFlow();
 				flow_list * flowsR = getFlowR(flows);
-				int initial = getInit(flows);
-				int_list * finals = getFinal(flows);
+				int initial = getInit();
+				int_list * finals = getFinal();
 
 				if (start_static_analysis(vars, initial, finals, flows, flowsR, blocks))
 					printf("Static analysis successful\n");
