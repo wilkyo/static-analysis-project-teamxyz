@@ -224,7 +224,7 @@ node * mknode_binary_boolean(int line, int col, node * left, operator op, node *
 /**************** Statements ***************/
 
 node * mknode_if(int line, int col, node * boolExpr, node * thenExpr, node * elseExpr) {
-	attribute * info = malloc(sizeof(attribute));
+	//attribute * info = malloc(sizeof(attribute));
 	node ** children = malloc(3 * sizeof(node));
 	children[0] = boolExpr;
 	children[1] = thenExpr;
@@ -233,7 +233,7 @@ node * mknode_if(int line, int col, node * boolExpr, node * thenExpr, node * els
 }
 
 node * mknode_while(int line, int col, node * boolExpr, node * statExpr) {
-	attribute * info = malloc(sizeof(attribute));
+	//attribute * info = malloc(sizeof(attribute));
 	node ** children = malloc(2 * sizeof(node));
 	children[0] = boolExpr;
 	children[1] = statExpr;
@@ -362,6 +362,7 @@ void checkNode(node * n) {
 					printf("bin_ar: %d * %d\n", n->children[0]->info->val->intT, n->children[1]->info->val->intT); break;
 				case(OP_DIV):
 					printf("bin_ar: %d / %d\n", n->children[0]->info->val->intT, n->children[1]->info->val->intT);
+				default: ;
 			}
 			break;
 		case(T_UNARY_BOOLEAN) :
@@ -385,6 +386,7 @@ void checkNode(node * n) {
 					printf("bin_bool: %d && %d\n", n->children[0]->info->val->intT, n->children[1]->info->val->intT); break;
 				case(OP_OR):
 					printf("bin_bool: %d || %d\n", n->children[0]->info->val->intT, n->children[1]->info->val->intT);
+				default: ;
 			}
 			break;
 		default:

@@ -1,10 +1,16 @@
 #include "static_analysis.h"
 #include <stdlib.h>
 
+declaration * _decls;
 block_list * _blocks;
 flow_list * _flow;
+int _init;
+int_list * _final;
+
+
 
 int checkTreeBeforeAnalysis(node * root) {
+	// TODO Wk
 	return 1;
 }
 
@@ -45,7 +51,29 @@ block * mk_block_skip(int label) {
 	return mk_block(label, B_SKIP, T_SKIP, 0, NULL);
 }
 
+flow * mk_flow(int start, int end) {
+	// TODO JB
+}
+
+flow_list * mk_flow_list(flow * f, flow_list * list) {
+	// TODO JB
+}
+
+flow_list * rm_flow_list(flow * f, flow_list * list) {
+	// TODO JB
+}
+
+
 /* Getters */
+
+char * getDeclarationNameWithId(declaration * list, int id) {
+	while(list != NULL) {
+		if(list->vId == id)
+			return list->vName;
+		list = list->next;
+	}
+	return NULL;
+}
 
 block * getBlockWithLabel(block_list * list, int label) {
 	while(list != NULL) {
@@ -56,16 +84,37 @@ block * getBlockWithLabel(block_list * list, int label) {
 	return NULL;
 }
 
+int isEmpty_flow_list(flow_list * list) {
+	// TODO JB
+}
+
+flow * head_flow_list(flow_list * list) {
+	// TODO JB
+}
+
+// Supprime et retourne le premier élément
+flow * pop_flow_list(flow_list ** list) {
+	// TODO JB
+}
+
+
+/* Opérations ensemblistes */
+
+int contains(flow * f, flow_list * list) {
+	// TODO JB
+}
+
 
 /* Analysis */
 
-declaration * getVariablesDeclarations(node * root) {
-	return NULL;
-}
-
 void initScan(node * root) {
+	// TODO Wk
 	_blocks = mk_block_list(mk_block_skip(42), NULL);
 	_blocks = mk_block_list(mk_block_skip(12), _blocks);
+}
+
+declaration * getVariablesDeclarations() {
+	return _decls;
 }
 
 block_list * getBlocks() {
@@ -77,19 +126,26 @@ flow_list * getFlow() {
 }
 
 flow_list * getFlowR(flow_list * list) {
+	// TODO JB
 	return NULL;
 }
 
 int getInit(flow_list * list) {
-	return 0;
+	return _init;
 }
 
-int_list * getFinal(flow_list * list) {
+void initFinal(flow_list * list) {
+	// TODO Wk
 	return NULL;
+}
+
+int_list * getFinal() {
+	return _final;
 }
 
 
 void print_blocks(int initial, flow_list * flows, block_list * blocks) {
+	// TODO TRT
 }
 
 // Return 1 if success
@@ -97,6 +153,7 @@ int start_static_analysis(declaration * vars, int initial, int_list * finals, fl
 	printf("Block: %d\n", getBlockWithLabel(blocks, 42)->label);
 	if(getBlockWithLabel(blocks, 66) == NULL)
 		printf("Block 66 NULL\n");
+	// TODO TRT
 	return 0;
 }
 

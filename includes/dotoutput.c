@@ -8,6 +8,9 @@
 
 #define NCHAR 64
 
+int list_print(node *n, FILE *f, int i, char *mylabel);
+int print(node *n, FILE *f, int i, char *res);
+
 int rec_print(node *n, FILE *f, int i, char *mylabel, int nchildren) {
 	char child_label[NCHAR];
 	int c;
@@ -82,6 +85,8 @@ int print(node *n, FILE *f, int i, char *res) {
 					snprintf(res, NCHAR, "div_%d", i);
 					strcpy(mylabel, res);
 					return rec_print(n, f, i, mylabel, 2);
+				default:
+					return i;
 			}
 			break;
 		case(T_UNARY_BOOLEAN) :
@@ -122,6 +127,8 @@ int print(node *n, FILE *f, int i, char *res) {
 					snprintf(res, NCHAR, "or_%d", i);
 					strcpy(mylabel, res);
 					return rec_print(n, f, i, mylabel, 2);
+				default:
+					return i;
 			}
 		case(T_SKIP):
 			snprintf(res, NCHAR, "skip_%d", i);
@@ -200,6 +207,7 @@ int print(node *n, FILE *f, int i, char *res) {
 			if (n->info->val->intT == 0)
 				return rec_print(n, f, i, mylabel, 2);
 			return rec_print(n, f, i, mylabel, 3);
+	default: ;
 	}
 	return i;
 }

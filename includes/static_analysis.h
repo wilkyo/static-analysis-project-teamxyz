@@ -64,37 +64,57 @@ struct flow {
 /**
  * Cherche si les types définis de l'arbre sont autorisés pour l'analyse statique.
  */
-int checkTreeBeforeAnalysis(node * root);
+int checkTreeBeforeAnalysis(node * root); // WK
 
 /* Constructeurs */
+
+declaration * mk_declaration(int id, char * name, declaration * list);
 
 block * mk_block_assign(int label, type sType, int assignedVar, int_list * vars);
 block * mk_block_bool_exp(int label, int_list * vars);
 block * mk_block_skip(int label);
 block_list * mk_block_list(block * b, block_list * list);
 
+flow * mk_flow(int start, int end);// JB
+flow_list * mk_flow_list(flow * f, flow_list * list);// JB
+flow_list * rm_flow_list(flow * f, flow_list * list);// JB
+
+
 /* Getters */
+
+char * getDeclarationNameWithId(declaration * list, int id);
 
 block * getBlockWithLabel(block_list * list, int label);
 
+int isEmpty_flow_list(flow_list * list);
+flow * head_flow_list(flow_list * list);
+// Supprime et retourne le premier élément
+flow * pop_flow_list(flow_list ** list);
+
+
+/* Opérations ensemblistes */
+
+int contains(flow * f, flow_list * list);
+
+
 /* Analysis */
 
-declaration * getVariablesDeclarations(node * root);
 /**
  * Scanne l'arbre et crée les blocks et le flow.
  * Permet de labeller en direct.
  */
-void initScan(node * root);
+void initScan(node * root);// Wk
+declaration * getVariablesDeclarations();
 block_list * getBlocks();
 flow_list * getFlow();
 flow_list * getFlowR(flow_list * list);
-int getInit(flow_list * list);
-int_list * getFinal(flow_list * list);
+int getInit();
+int_list * getFinal();
 
 // [x := a]1 ; if [x > 0]2...
-void print_blocks(int initial, flow_list * flows, block_list * blocks);
+void print_blocks(int initial, flow_list * flows, block_list * blocks);//JB
 // Return 1 if success
-int start_static_analysis(declaration * vars, int initial, int_list * finals, flow_list * flows, flow_list * flowsR, block_list * blocks);
+int start_static_analysis(declaration * vars, int initial, int_list * finals, flow_list * flows, flow_list * flowsR, block_list * blocks);//TRT
 
 #endif
 

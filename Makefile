@@ -43,6 +43,7 @@ $(SYNTAXIC_ANALYSER).c: $(YACC_FILE)
 # -g pour débugguer
 $(SYNTAXIC_ANALYSER): $(AUTOMATON_FILE) $(SYNTAXIC_ANALYSER).c $(LIBS)
 	@echo "===== Compiling "$(SYNTAXIC_ANALYSER)" ====="
+	#gcc -o $(SYNTAXIC_ANALYSER) $(LIBS) $(SYNTAXIC_ANALYSER).c $(AUTOMATON_FILE) -DPROD_INTER=0
 	gcc -Wall -Wextra -o $(SYNTAXIC_ANALYSER) $(LIBS) $(SYNTAXIC_ANALYSER).c $(AUTOMATON_FILE) -DPROD_INTER=0
 
 # make run exécute l'analyseur sur le fichier source
