@@ -12,7 +12,7 @@ IMAGE_VIEWER=eog
 # Sources
 LEX_FILE=lexparser.lex
 YACC_FILE=synparser.y
-LIBS=includes/node.c includes/static_analysis.c includes/dotoutput.c
+LIBS=includes/node.c includes/static_analysis.c includes/dotoutput.c includes/analysis_block.c
 SRC=exemples/f5ex1.src
 
 # Générés

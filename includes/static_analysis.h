@@ -80,8 +80,8 @@ flow * mk_flow(int start, int end);// JB
 flow_list * mk_flow_list(flow * f, flow_list * list);// JB
 flow_list * rm_flow_list(flow * f, flow_list * list);// JB
 
-int_list * mk_int_list(int i, int_list * list);
-
+int_list * mk_int_list(int val, int_list * list);
+int_list * rm_int_list(int_list * list);
 
 /* Getters */
 

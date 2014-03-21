@@ -24,23 +24,12 @@ declaration * mk_declaration(int id, char * name, declaration * list) {
 	nlist->next = list;
 	return nlist;
 }
-/*
+
+block_list * mk_block_list(block * b, block_list * list) {
 	block_list * nlist = malloc(sizeof(block_list));
 	nlist->val = b;
 	nlist->next = list;
 	return nlist;
-	*/
-block_list * mk_block_list(block * b, block_list * list) {
-	if(list == NULL) {
-		list = malloc(sizeof(block_list));
-		list->val = b;
-		list->next = NULL;
-	} else {
-		list->next = malloc(sizeof(block_list));
-		list->next->val = b;
-		list->next->next = NULL;
-	}
-	return list;
 }
 
 block * mk_block(int label, blockType bType, type sType, int assignedVar, int_list * vars, char * str) {
@@ -67,22 +56,80 @@ block * mk_block_skip(int label) {
 }
 
 flow * mk_flow(int start, int end) {
-	// TODO JB
+	flow * f = malloc(sizeof(flow));
+	f->start =start;
+	f->end = end;
+	return f;
+}
+
+int isEqual_flow(flow * f1, flow * f2)
+{
+	if(f1 != NULL && f2 != NULL)
+		return ((f1->start == f2->start) && (f1->end == f2->end));
+	else
+		return 0;
 }
 
 flow_list * mk_flow_list(flow * f, flow_list * list) {
-	// TODO JB
+	if(list == NULL)
+	{
+		list = malloc(sizeof(flow_list));
+		list->val=f;
+		list->next=NULL;
+	}
+	else
+	{
+		flow_list * nlist = malloc(sizeof(flow_list));
+		nlist->val = f;
+		nlist->next = list;
+		list = nlist;
+	}
+	return list;
 }
 
 flow_list * rm_flow_list(flow * f, flow_list * list) {
-	// TODO JB
+	if(list != NULL && f != NULL)
+	{
+		flow_list * aux = list;
+		if(isEqual_flow(list->val,f)==1)
+		{
+			list = aux->next;
+			free(aux->val);
+			free(aux);
+		}
+		else
+		{
+			while(aux->next != NULL)
+			{
+				if(isEqual_flow(aux->next->val,f) == 1)
+				{
+					flow_list * aux2 = aux;
+					aux->next = aux->next->next;
+					free(aux2->val);
+					free(aux);
+					break;
+				}
+			}
+		}
+	}
+	return list;
 }
 
-int_list * mk_int_list(int i, int_list * list) {
+int_list * mk_int_list(int val, int_list * list) {
 	int_list * nlist = malloc(sizeof(block_list));
-	nlist->val = i;
+	nlist->val = val;
 	nlist->next = list;
 	return nlist;
+}
+
+int_list * rm_int_list(int_list * list)
+{
+	if(list != NULL)
+	{
+		rm_int_list(list->next);
+		free(list);
+	}
+	return NULL;
 }
 
 
@@ -116,23 +163,40 @@ block * getBlockWithLabel(block_list * list, int label) {
 }
 
 int isEmpty_flow_list(flow_list * list) {
-	// TODO JB
+	return (list == NULL);
 }
 
 flow * head_flow_list(flow_list * list) {
-	// TODO JB
+	if(list != NULL)
+		return list->val;
+	return NULL;
 }
 
 // Supprime et retourne le premier élément
 flow * pop_flow_list(flow_list ** list) {
-	// TODO JB
+	if(list != NULL)
+	{
+		flow * f = (*list)->val;
+		flow_list * aux = (*list);
+		list = &(aux->next);
+		free(aux);
+		return f;
+	}
+	return NULL;
 }
 
 
 /* Opérations ensemblistes */
 
 int contains(flow * f, flow_list * list) {
-	// TODO JB
+	if(list != NULL)
+	{
+		if(isEqual_flow(f,list->val) == 1)
+			return 1;
+		else
+			return contains(f,list->next);
+	}
+	return 0;
 }
 
 int_list * union_int_list(int_list * l1, int_list * l2) {
@@ -275,8 +339,15 @@ flow_list * getFlow() {
 }
 
 flow_list * getFlowR(flow_list * list) {
-	// TODO JB
-	return NULL;
+	flow_list * res = NULL;
+	if(list != NULL)
+	{
+		flow * f = mk_flow(list->val->end,list->val->start);
+		res = mk_flow_list(f,res);
+		res->next = getFlowR(list->next);
+		return res;	
+	}
+	return res;
 }
 
 int getInit(flow_list * list) {
