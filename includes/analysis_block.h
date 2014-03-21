@@ -11,7 +11,7 @@ struct analysis_block{
 	int label;
 };
 
-struct  analysis_list{
+struct analysis_list{
 	analysis_block *block;
 	analysis_list* next;
 };

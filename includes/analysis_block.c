@@ -18,10 +18,39 @@ void mk_analysis_list(analysis_list ** list)
 
 void add_analysis_list(analysis_list ** list, analysis_block *block)
 {
+	mk_analysis_list(list);
+	analysis_list * aux = (*list);
+	while(aux->next != NULL) aux = aux->next;
+	aux->next->block = block;
 }
 
 void rm_analysis_list(analysis_list ** list, analysis_block *block)
 {
+	if((*list) != NULL)
+	{
+		analysis_list * aux = (*list);
+		if(aux->block == block)
+		{
+			analysis_list * aux2 = aux;
+			aux = aux->next;
+			rm_analysis_block(&(aux2->block));
+			free(aux2);
+		}
+		else
+		{
+			while(aux->next != NULL)
+			{
+				if(aux->next->block == block)
+				{
+					analysis_list * aux2 = aux->next;
+					aux->next = aux2->next;
+					rm_analysis_block(&(aux2->block));
+					free(aux2);
+					break;
+				}
+			}
+		}
+	}
 }
 
 void mk_analysis_block(analysis_block ** block, int label)
@@ -31,7 +60,7 @@ void mk_analysis_block(analysis_block ** block, int label)
 	(*block)->list = NULL;
 }
 
-void free_analysis_block(analysis_block ** block)
+void rm_analysis_block(analysis_block ** block)
 {
 	(*block)->list = free_int_list((*block)->list);
 	free((*block));

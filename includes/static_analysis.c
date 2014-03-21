@@ -81,10 +81,11 @@ flow_list * mk_flow_list(flow * f, flow_list * list) {
 	}
 	else
 	{
-		flow_list * nlist = malloc(sizeof(flow_list));
-		nlist->val = f;
-		nlist->next = list;
-		list = nlist;
+		flow_list * aux = list;
+		while(aux->next != NULL) aux = aux->next;
+		aux->next = malloc(sizeof(flow_list));
+		aux->next->val = f;
+		aux->next->next = NULL;
 	}
 	return list;
 }
