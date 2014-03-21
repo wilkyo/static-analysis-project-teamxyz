@@ -112,6 +112,33 @@ flow_list * rm_flow_list(flow * f, flow_list * list) {
 	return list;
 }
 
+int_list * mk_int_list(int val, int_list * list)
+{
+	if(list == NULL)
+	{
+		list = malloc(sizeof(int_list));
+		list->val = val;
+		list->next = NULL;
+	}
+	else
+	{
+		int_list * aux = malloc(sizeof(int_list));
+		aux->val = val;
+		aux->next = list;
+		list = aux;
+	}
+	return list;
+}
+
+int_list * rm_int_list(int_list * list)
+{
+	if(list != NULL)
+	{
+		rm_int_list(list->next);
+		free(list);
+	}
+	return NULL;
+}
 
 /* Getters */
 
