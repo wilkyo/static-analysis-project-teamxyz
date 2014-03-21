@@ -166,17 +166,29 @@ void free_int_list(int_list * list)
 
 void free_flow(flow * f)
 {
-	free(f);
+	if(f != NULL)
+		free(f);
 }
 
 void free_blocks(block * b)
 {
-	free_int_list(b->variables);
-	free(b->str);
-	free(b);
+	if(b != NULL)
+	{
+		free_int_list(b->variables);
+		free(b->str);
+		free(b);
+	}
 }
 
-
+void free_blocks_list(block_list * list)
+{
+	if(list != NULL)
+	{
+		free_blocks_list(list->next);
+		free_blocks(list->val);
+		free(list);		
+	}
+}
 /* Getters */
 
 char * getDeclarationNameWithId(declaration * list, int id) {

@@ -88,6 +88,7 @@ int_list * rm_int_list(int val, int_list * list);
 void free_int_list(int_list * list);
 void free_flow(flow * f);
 void free_blocks(block * b);
+void free_blocks_list(block_list * b);
 
 /* Getters */
 
