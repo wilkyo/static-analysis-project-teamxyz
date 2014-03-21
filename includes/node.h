@@ -377,6 +377,13 @@ node * mknode_procedure_declaration(int line, int col, node * id, node * paramsL
 /* Other */
 
 /**
+ * \fn void free_node(node * n);
+ *
+ * \param n The node
+ */
+void free_node(node * n);
+
+/**
  * \fn char * node_to_string(node * n);
  * \brief Returns the string of the node.
  *

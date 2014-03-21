@@ -76,12 +76,13 @@ block * mk_block_bool_exp(int label, type sType, int_list * vars, char * str);
 block * mk_block_skip(int label);
 block_list * mk_block_list(block * b, block_list * list);
 
-flow * mk_flow(int start, int end);// JB
-flow_list * mk_flow_list(flow * f, flow_list * list);// JB
-flow_list * rm_flow_list(flow * f, flow_list * list);// JB
+flow * mk_flow(int start, int end);
+flow_list * mk_flow_list(flow * f, flow_list * list);
+flow_list * rm_flow_list(flow * f, flow_list * list);
 
 int_list * mk_int_list(int val, int_list * list);
-int_list * rm_int_list(int_list * list);
+int_list * free_int_list(int_list * list);
+
 
 /* Getters */
 
@@ -94,6 +95,8 @@ int isEmpty_flow_list(flow_list * list);
 flow * head_flow_list(flow_list * list);
 // Supprime et retourne le premier élément
 flow * pop_flow_list(flow_list ** list);
+int pop_int_list(int_list ** list);
+int get_last_label(int_list * list);
 
 
 /* Opérations ensemblistes */
@@ -108,7 +111,7 @@ int_list * union_int_list(int_list * l1, int_list * l2);
  * Scanne l'arbre et crée les blocks et le flow.
  * Permet de labeller en direct.
  */
-void initScan(node * root);// Wk
+void initScan(node * root);
 declaration * getVariablesDeclarations();
 block_list * getBlocks();
 flow_list * getFlow();
@@ -117,7 +120,8 @@ int getInit();
 int_list * getFinal();
 
 // [x := a]1 ; if [x > 0]2...
-void print_blocks(int initial, flow_list * flows, block_list * blocks);//JB
+void print_blocks(int initial, flow_list * flows, block_list * blocks);
+void print_flows(flow_list * flows);
 // Return 1 if success
 int start_static_analysis(declaration * vars, int initial, int_list * finals, flow_list * flows, flow_list * flowsR, block_list * blocks);//TRT
 

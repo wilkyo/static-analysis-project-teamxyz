@@ -9,5 +9,5 @@ while (i + j <= 20 ) do
 
 	else
 	( i := i+2; j := j+1 )
-)
+); skip
 end

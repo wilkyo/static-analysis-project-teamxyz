@@ -31,9 +31,9 @@ void mk_analysis_block(analysis_block ** block, int label)
 	(*block)->list = NULL;
 }
 
-void rm_analysis_block(analysis_block ** block)
+void free_analysis_block(analysis_block ** block)
 {
-	(*block)->list = rm_int_list((*block)->list);
+	(*block)->list = free_int_list((*block)->list);
 	free((*block));
 	(*block)=NULL;
 }

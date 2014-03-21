@@ -1,11 +1,13 @@
 #include "static_analysis.h"
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 declaration * _decls;
 block_list * _blocks;
 flow_list * _flow;
-int _init;
+int _initLabel;
+int _lastLabel;
 int_list * _final;
 
 
@@ -122,11 +124,11 @@ int_list * mk_int_list(int val, int_list * list) {
 	return nlist;
 }
 
-int_list * rm_int_list(int_list * list)
+int_list * free_int_list(int_list * list)
 {
 	if(list != NULL)
 	{
-		rm_int_list(list->next);
+		free_int_list(list->next);
 		free(list);
 	}
 	return NULL;
@@ -174,17 +176,46 @@ flow * head_flow_list(flow_list * list) {
 
 // Supprime et retourne le premier élément
 flow * pop_flow_list(flow_list ** list) {
-	if(list != NULL)
+	if(list != NULL && *list != NULL)
 	{
 		flow * f = (*list)->val;
 		flow_list * aux = (*list);
-		list = &(aux->next);
+		(*list) = aux->next;
 		free(aux);
 		return f;
 	}
 	return NULL;
 }
 
+int pop_int_list(int_list ** list) {
+	if(list != NULL && *list != NULL)
+	{
+		int i = (*list)->val;
+		int_list * aux = (*list);
+		(*list) = aux->next;
+		free(aux);
+		return i;
+	}
+	return -1;
+}
+
+int get_last_label(int_list * list) {
+	int last = -1;
+	while(list != NULL) {
+		if(list->val > last) last = list->val;
+		list = list->next;
+	}
+	return last;
+}
+
+int get_size_int_list(int_list * list) {
+	int size = 0;
+	while(list != NULL) {
+		size++;
+		list = list->next;
+	}
+	return size;
+}
 
 /* Opérations ensemblistes */
 
@@ -217,7 +248,7 @@ int_list * union_int_list(int_list * l1, int_list * l2) {
  * Initialise les déclarations.
  * @param n Node contenant les déclarations.
  */
-declaration * initDeclarations(node * n) {
+void initDeclarations(node * n) {
 	int i = 0;
 	while(n->info->val->intT > 1) {
 		_decls = mk_declaration(i++, n->children[1]->info->label, _decls);
@@ -247,83 +278,136 @@ int_list * getListVariables(node * n) {
 	}
 }
 
-int initSkipBlock(int lastLabel) {
-	block * b = mk_block_skip(++lastLabel);
+
+int_list * initScanRec(node * n, int_list * lastLabels, int depth);
+
+int_list * initSkipBlock(int_list * lastLabels) {
+	int currentLabel = _lastLabel + 1;
+	int label;
+	printf("size: %d\n", get_size_int_list(lastLabels));
+	while((label = pop_int_list(&lastLabels)) != -1) {
+		if(currentLabel != _initLabel) {
+			flow * f = mk_flow(label, currentLabel);
+			_flow = mk_flow_list(f, _flow);
+			printf("FLOW(%d, %d)\n", f->start, f->end);
+		}
+	}
+	block * b = mk_block_skip(currentLabel);
 	_blocks = mk_block_list(b, _blocks);
+	lastLabels = mk_int_list(currentLabel, lastLabels);
+	_lastLabel++;
 	printf("b: %d\n", b->label);
-	return lastLabel;
+	return lastLabels;
 }
 
-int initBoolExpBlock(node * n, int lastLabel, type sType, int depth) {
-	block * b = mk_block_bool_exp(++lastLabel, sType,
+int_list * initBoolExpBlock(node * n, int_list * lastLabels, type sType, int depth) {
+	int currentLabel = _lastLabel + 1;
+	int label;
+	printf("size: %d\n", get_size_int_list(lastLabels));
+	while((label = pop_int_list(&lastLabels)) != -1) {
+		if(currentLabel != _initLabel) {
+			flow * f = mk_flow(label, currentLabel);
+			_flow = mk_flow_list(f, _flow);
+			printf("FLOW(%d, %d)\n", f->start, f->end);
+		}
+	}
+	block * b = mk_block_bool_exp(currentLabel, sType,
 		getListVariables(n->children[0]), node_to_string(n->children[0]));
 	_blocks = mk_block_list(b, _blocks);
+	lastLabels = mk_int_list(currentLabel, lastLabels);
+	_lastLabel++;
 	printf("b: %d: %s\n", b->label, b->str);
 	if(sType == T_IF_STATEMENT) {
-		lastLabel = initScanRec(n->children[1], lastLabel, depth + 1);
-		lastLabel = initScanRec(n->children[2], lastLabel, depth + 1);
+		lastLabels = initScanRec(n->children[1], lastLabels, depth + 1);
+		int afterThen = pop_int_list(&lastLabels);
+		lastLabels = initScanRec(n->children[2], mk_int_list(b->label, lastLabels), depth + 1);
+		lastLabels = mk_int_list(afterThen, lastLabels);
 	} else if(sType == T_WHILE_STATEMENT) {
-		lastLabel = initScanRec(n->children[1], lastLabel, depth + 1);
+		lastLabels = initScanRec(n->children[1], lastLabels, depth + 1);
+		// On rebranche tous les labels de fin de boucle sur la condition de boucle
+		while((label = pop_int_list(&lastLabels)) != -1) {
+			flow * f = mk_flow(label, b->label);
+			_flow = mk_flow_list(f, _flow);
+			printf("FLOW(%d, %d)\n", f->start, f->end);
+		}
+		lastLabels = mk_int_list(b->label, lastLabels);
 	}
-	return lastLabel;
+	return lastLabels;
 }
 
-int initAssignBlock(node * n, int lastLabel, int depth) {
-	block * b = mk_block_assign(++lastLabel,
+int_list * initAssignBlock(node * n, int_list * lastLabels, int depth) {
+	int currentLabel = _lastLabel + 1;
+	int label;
+	printf("size: %d\n", get_size_int_list(lastLabels));
+	while((label = pop_int_list(&lastLabels)) != -1) {
+		if(currentLabel != _initLabel) {
+			flow * f = mk_flow(label, currentLabel);
+			_flow = mk_flow_list(f, _flow);
+			printf("FLOW(%d, %d)\n", f->start, f->end);
+		}
+	}
+	block * b = mk_block_assign(currentLabel,
 		getDeclarationIdWithName(_decls, n->children[0]->info->label),
 		getListVariables(n->children[1]), node_to_string(n->children[1]));
 	_blocks = mk_block_list(b, _blocks);
+	lastLabels = mk_int_list(currentLabel, lastLabels);
+	_lastLabel++;
 	printf("b: %d, %d: %s\n", b->label, b->assignedVar, b->str);
-	return lastLabel;
+	return lastLabels;
 }
 
-int initScanRec(node * n, int lastLabel, int depth);
-
-int initScanList(node *n, int lastLabel, int depth) {
+int_list * initScanList(node *n, int_list * lastLabels, int depth) {
 	//printf("L%d\n", lastLabel);
-	printf("NodeList: %s, %d\n", n->lexeme, n->info->val->intT);
+	//printf("NodeList: %s, %d\n", n->lexeme, n->info->val->intT);
 	if (n->info->val->intT == 1) {
-		return initScanRec(n->children[0], lastLabel, depth);
+		return initScanRec(n->children[0], lastLabels, depth);
 	} else {
-		lastLabel = initScanList(n->children[0], lastLabel, depth);
-		return initScanRec(n->children[1], lastLabel, depth);
+		lastLabels = initScanList(n->children[0], lastLabels, depth);
+		return initScanRec(n->children[1], lastLabels, depth);
 	}
 }
 
-int initScanRec(node * n, int lastLabel, int depth) {
+int_list * initScanRec(node * n, int_list * lastLabels, int depth) {
 	//printf("R%d\n", lastLabel);
-	printf("Node[%d]: %s\n", depth, n->lexeme);
+	//printf("Node[%d]: %s\n", depth, n->lexeme);
 	switch(n->nodeType) {
 		case(T_SKIP):
-			return initSkipBlock(lastLabel);
+			return initSkipBlock(lastLabels);
 		case(T_ASSIGN):
-			return initAssignBlock(n, lastLabel, depth);
+			return initAssignBlock(n, lastLabels, depth);
 		case(T_LIST):
-			return initScanList(n, lastLabel, depth);
+			return initScanList(n, lastLabels, depth);
 		case(T_IF_STATEMENT):
-			return initBoolExpBlock(n, lastLabel, T_IF_STATEMENT, depth);
+			return initBoolExpBlock(n, lastLabels, T_IF_STATEMENT, depth);
 		case(T_WHILE_STATEMENT):
-			return initBoolExpBlock(n, lastLabel, T_WHILE_STATEMENT, depth);
+			return initBoolExpBlock(n, lastLabels, T_WHILE_STATEMENT, depth);
 		case(T_BLOCK_STATEMENT):
 			if(n->info->val->intT == 0)
-				return initScanRec(n->children[0], lastLabel, depth + 1);
+				return initScanRec(n->children[0], lastLabels, depth + 1);
 			else {
-				lastLabel = initScanRec(n->children[0], lastLabel, depth + 1);
-				return initScanRec(n->children[1], lastLabel, depth + 1);
+				lastLabels = initScanRec(n->children[0], lastLabels, depth + 1);
+				return initScanRec(n->children[1], lastLabels, depth + 1);
 			}
 		case(T_DECLARATION_STATEMENT):
 			initDeclarations(n->children[1]);
-			return lastLabel;
+			return lastLabels;
 		case(T_PROGRAM):
-			lastLabel = initScanRec(n->children[0], lastLabel, depth + 1);
-			return initScanRec(n->children[1], lastLabel, depth + 1);
+			lastLabels = initScanRec(n->children[0], lastLabels, depth + 1);
+			// Si gestion des procédures, lastLabels sera modifié et initLabel ne vaudra pas 1
+			_initLabel = get_last_label(lastLabels) + 1;
+			//lastLabels = mk_int_list(_initLabel, lastLabels);
+			return initScanRec(n->children[1], lastLabels, depth + 1);
+		default:;
 	}
-	return lastLabel;
+	return lastLabels;
 }
 
 void initScan(node * root) {
 	// TODO Wk
-	initScanRec(root, 0, 0);
+	_initLabel = 0;
+	_lastLabel = 0;
+	_final = initScanRec(root, mk_int_list(_lastLabel, NULL), 0);
+	free_node(root);
 }
 
 declaration * getVariablesDeclarations() {
@@ -351,11 +435,7 @@ flow_list * getFlowR(flow_list * list) {
 }
 
 int getInit(flow_list * list) {
-	return _init;
-}
-
-void initFinal(flow_list * list) {
-	// TODO Wk
+	return _initLabel;
 }
 
 int_list * getFinal() {
@@ -365,6 +445,17 @@ int_list * getFinal() {
 
 void print_blocks(int initial, flow_list * flows, block_list * blocks) {
 	// TODO TRT
+}
+
+void print_flows(flow_list * list) {
+	if(list != NULL) {
+		printf("(%d, %d)", list->val->start, list->val->end);
+		while(list->next != NULL) {
+			list = list->next;
+			printf(", (%d, %d)", list->val->start, list->val->end);
+		}
+		printf("\n");
+	}
 }
 
 // Return 1 if success

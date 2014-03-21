@@ -175,6 +175,10 @@ int main(int argc, char ** argv) {
 				int initial = getInit();
 				int_list * finals = getFinal();
 
+				print_blocks(initial, flows, blocks);
+				print_flows(flows);
+				print_flows(flowsR);
+
 				if (start_static_analysis(vars, initial, finals, flows, flowsR, blocks))
 					printf("Static analysis successful\n");
 				else

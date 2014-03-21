@@ -230,7 +230,7 @@ node * mknode_if(int line, int col, node * boolExpr, node * thenExpr, node * els
 	children[0] = boolExpr;
 	children[1] = thenExpr;
 	children[2] = elseExpr;
-	return mk_node(line, col, "IF_STATEMENT", NULL, T_IF_STATEMENT, children);
+	return mk_node(line, col, "IF_STATEMENT ", NULL, T_IF_STATEMENT, children);
 }
 
 node * mknode_while(int line, int col, node * boolExpr, node * statExpr) {
@@ -405,6 +405,12 @@ char * node_to_string(node * n) {
 			printf("ERROR NTS\n");
 	}
 	return res;
+}
+
+void free_node(node * n) {
+	printf("Freeing node %s\n", n->lexeme);
+	// TODO
+	free(n);
 }
 
 /**************** DEBUG ********************/
