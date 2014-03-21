@@ -12,11 +12,12 @@
 node * mk_leaf_id(int line, int col, char * lexeme, char * label, type nodeType) {
 	if(DEBUG) printf("mk_leaf_id(%s, %s)\n", lexeme, label);
 	node * n = malloc(sizeof(node));
-	n->lexeme = malloc(strlen(lexeme) * sizeof(char));
+	n->lexeme = malloc((strlen(lexeme)+1) * sizeof(char));
 	strcpy(n->lexeme, lexeme);
 	n->nodeType = nodeType;
 	attribute * info = malloc(sizeof(attribute));
-	info->label = malloc(strlen(label) * sizeof(char));
+	label = "test";
+	info->label = malloc((strlen(label)+1) * sizeof(char));
 	strcpy(info->label, label);
 	n->info = info;
 	n->children = NULL;
@@ -29,7 +30,7 @@ node * mk_leaf_cst(int line, int col, char * lexeme, value * val, type nodeType)
 	if(DEBUG && nodeType == T_VALUE_INT) printf("mk_leaf_cst(%s, %d)\n", lexeme, val->intT);
 	if(DEBUG && nodeType == T_VALUE_DECIMAL) printf("mk_leaf_cst(%s, %f)\n", lexeme, val->floatT);
 	node * n = malloc(sizeof(node));
-	n->lexeme = malloc(strlen(lexeme) * sizeof(char));
+	n->lexeme = malloc((strlen(lexeme)+1) * sizeof(char));
 	strcpy(n->lexeme, lexeme);
 	n->nodeType = nodeType;
 	attribute * info = malloc(sizeof(attribute));
@@ -44,7 +45,7 @@ node * mk_leaf_cst(int line, int col, char * lexeme, value * val, type nodeType)
 node * mk_leaf_type(int line, int col, char * lexeme, type nodeType) {
 	if(DEBUG) printf("mk_leaf_type(%s)\n", lexeme);
 	node * n = malloc(sizeof(node));
-	n->lexeme = malloc(strlen(lexeme) * sizeof(char));
+	n->lexeme = malloc((strlen(lexeme)+1) * sizeof(char));
 	strcpy(n->lexeme, lexeme);
 	n->nodeType = nodeType;
 	n->info = NULL;
@@ -170,7 +171,7 @@ node * mknode_list(int line, int col, node * list, node * expr) {
 node * mk_node(int line, int col, char * lexeme, attribute * info, type nodeType, node ** children) {
 	if(DEBUG) printf("mk_node(%s)\n", lexeme);
 	node * n = malloc(sizeof(node));
-	n->lexeme = malloc(strlen(lexeme) * sizeof(char));
+	n->lexeme = malloc((strlen(lexeme)+1) * sizeof(char));
 	strcpy(n->lexeme, lexeme);
 	n->nodeType = nodeType;
 	n->info = info;
@@ -337,7 +338,7 @@ char * node_to_string(node * n) {
 	switch(n->nodeType) {
 		case(T_VALUE_INT) :
 			snprintf(str, STRLEN, "%d", n->info->val->intT);
-			res = malloc(strlen(str) * sizeof(char));
+			res = malloc((strlen(str)+1) * sizeof(char));
 			strcpy(res, str);
 			return res;
 		case(T_VALUE_DECIMAL) :
@@ -351,7 +352,7 @@ char * node_to_string(node * n) {
 		case(T_BINARY_ARITHMETIC) :
 			l = node_to_string(n->children[0]);
 			r = node_to_string(n->children[1]);
-			res = malloc(strlen(l) + strlen(r) + 3);
+			res = malloc(strlen(l) + strlen(r) + 4);
 			strcpy(res, l);
 			res[strlen(l)] = ' ';
 			strcpy(res + strlen(l) + 3, r);
@@ -375,7 +376,7 @@ char * node_to_string(node * n) {
 		case(T_BINARY_BOOLEAN) :
 			l = node_to_string(n->children[0]);
 			r = node_to_string(n->children[1]);
-			res = malloc(strlen(l) + strlen(r) + 3);
+			res = malloc(strlen(l) + strlen(r) + 5);
 			strcpy(res, l);
 			res[strlen(l)] = ' ';
 			strcpy(res + strlen(l) + 4, r);
@@ -407,9 +408,57 @@ char * node_to_string(node * n) {
 	return res;
 }
 
+void free_node_children(node * parent, int n) {
+	int i = 0;
+	for(;i < n ; i++)
+		free_node(parent->children[i]);
+}
+
 void free_node(node * n) {
 	printf("Freeing node %s\n", n->lexeme);
-	// TODO
+	switch(n->nodeType) {
+		case(T_UNARY_ARITHMETIC) :
+		case(T_UNARY_BOOLEAN) :
+		case(T_TYPE_ARRAY):
+		case(T_FREE):
+			free_node_children(n, 1);
+			break;
+		case(T_ARRAY_INDEX) :
+		case(T_BINARY_ARITHMETIC) :
+		case(T_BINARY_BOOLEAN) :
+		case(T_ASSIGN):
+		case(T_NEW):
+		case(T_FUNCTION_CALL):
+		case(T_PARAMETER):
+		case(T_WHILE_STATEMENT):
+		case(T_DECLARATION_STATEMENT):
+			free_node_children(n, 2);
+			break;
+		case(T_IF_STATEMENT):
+			free_node_children(n, 3);
+			break;
+		case(T_RETURN):
+			free_node_children(n, n->children[0] == NULL ? 0 : 1);
+			break;
+		case(T_BLOCK_STATEMENT):
+			free_node_children(n, n->info->val->intT == 0 ? 1 : 2);
+			break;
+		case(T_PROCEDURE_DECLARATION):
+			free_node_children(n, n->info->val->intT == 0 ? 2 : 3);
+			break;
+		case(T_FUNCTION_DECLARATION):
+			free_node_children(n, n->info->val->intT == 0 ? 3 : 4);
+		case(T_LIST):
+			if (n->info->val->intT > 1)
+				free_node_children(n, 2);
+			else if (n->info->val->intT > 0)
+				free_node_children(n, 1);
+			break;
+		case(T_PROGRAM):
+			return free_node_children(n, (n->info->val->intT == 0 ? 1 : 2)
+				+ (n->children[0] == NULL ? 0 : 1));
+	}
+	free(n->lexeme);
 	free(n);
 }
 
