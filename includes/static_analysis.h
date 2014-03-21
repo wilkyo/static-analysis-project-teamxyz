@@ -46,6 +46,7 @@ struct block {
 	type sType; // Type de statement: pour l'affichage (if, while...)
 	int assignedVar; // variable assignée
 	int_list * variables; // liste des variables à droite ou dans la booléenne
+	char * str;
 };
 
 struct flow_list {
@@ -70,14 +71,16 @@ int checkTreeBeforeAnalysis(node * root); // WK
 
 declaration * mk_declaration(int id, char * name, declaration * list);
 
-block * mk_block_assign(int label, type sType, int assignedVar, int_list * vars);
-block * mk_block_bool_exp(int label, int_list * vars);
+block * mk_block_assign(int label, int assignedVar, int_list * vars, char * str);
+block * mk_block_bool_exp(int label, type sType, int_list * vars, char * str);
 block * mk_block_skip(int label);
 block_list * mk_block_list(block * b, block_list * list);
 
 flow * mk_flow(int start, int end);// JB
 flow_list * mk_flow_list(flow * f, flow_list * list);// JB
 flow_list * rm_flow_list(flow * f, flow_list * list);// JB
+
+int_list * mk_int_list(int i, int_list * list);
 
 
 /* Getters */
@@ -96,6 +99,7 @@ flow * pop_flow_list(flow_list ** list);
 /* Opérations ensemblistes */
 
 int contains(flow * f, flow_list * list);
+int_list * union_int_list(int_list * l1, int_list * l2);
 
 
 /* Analysis */

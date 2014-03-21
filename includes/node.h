@@ -373,4 +373,16 @@ node * mknode_function_declaration(int line, int col, node * id, node * paramsLi
  */
 node * mknode_procedure_declaration(int line, int col, node * id, node * paramsList, node * statExpr);
 
+
+/* Other */
+
+/**
+ * \fn char * node_to_string(node * n);
+ * \brief Returns the string of the node.
+ *
+ * \param n The node
+ * \return The string
+ */
+char * node_to_string(node * n);
+
 #endif

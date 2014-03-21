@@ -1,5 +1,6 @@
 #define DEBUG 0
 #define MAIN 0
+#define STRLEN 15
 
 #include "node.h"
 #include <stdio.h>
@@ -325,6 +326,85 @@ node * mknode_procedure_declaration(int line, int col, node * id, node * paramsL
 		children[2] = statExpr;
 	}
 	return mk_node(line, col, "PROCEDURE_DECLARATION", info, T_PROCEDURE_DECLARATION, children);
+}
+
+
+/* Other */
+
+char * node_to_string(node * n) {
+	char * l, * r, * res = NULL;
+	char str[STRLEN];
+	switch(n->nodeType) {
+		case(T_VALUE_INT) :
+			snprintf(str, STRLEN, "%d", n->info->val->intT);
+			res = malloc(strlen(str) * sizeof(char));
+			strcpy(res, str);
+			return res;
+		case(T_VALUE_DECIMAL) :
+			printf("decimal: %f\n", n->info->val->floatT);
+			break;
+		case(T_IDENTIFIER) :
+			return n->info->label;
+		case(T_UNARY_ARITHMETIC) :
+			printf("un_ar: -%d\n", n->children[0]->info->val->intT);
+			break;
+		case(T_BINARY_ARITHMETIC) :
+			l = node_to_string(n->children[0]);
+			r = node_to_string(n->children[1]);
+			res = malloc(strlen(l) + strlen(r) + 3);
+			strcpy(res, l);
+			res[strlen(l)] = ' ';
+			strcpy(res + strlen(l) + 3, r);
+			res[strlen(l) + 2] = ' ';
+			switch(n->info->op) {
+				case(OP_ADD):
+					res[strlen(l) + 1] = '+'; break;
+				case(OP_SUB):
+					res[strlen(l) + 1] = '-'; break;
+				case(OP_MULT):
+					res[strlen(l) + 1] = '*'; break;
+				case(OP_DIV):
+					res[strlen(l) + 1] = '/'; break;
+				default:
+					res[strlen(l) + 1] = '?'; break;
+			}
+			return res;
+		case(T_UNARY_BOOLEAN) :
+			printf("un_bool: !%d\n", n->children[0]->info->val->intT);
+			break;
+		case(T_BINARY_BOOLEAN) :
+			l = node_to_string(n->children[0]);
+			r = node_to_string(n->children[1]);
+			res = malloc(strlen(l) + strlen(r) + 3);
+			strcpy(res, l);
+			res[strlen(l)] = ' ';
+			strcpy(res + strlen(l) + 4, r);
+			res[strlen(l) + 3] = ' ';
+			switch(n->info->op) {
+				case(OP_LOWER_THAN):
+					res[strlen(l) + 1] = '<'; res[strlen(l) + 2] = ' '; break;
+				case(OP_GREATER_THAN):
+					res[strlen(l) + 1] = '>'; res[strlen(l) + 2] = ' '; break;
+				case(OP_LOWER_EQUALS):
+					res[strlen(l) + 1] = '<'; res[strlen(l) + 2] = '='; break;
+				case(OP_GREATER_EQUALS):
+					res[strlen(l) + 1] = '>'; res[strlen(l) + 2] = '='; break;
+				case(OP_EQUALS):
+					res[strlen(l) + 1] = '='; res[strlen(l) + 2] = '='; break;
+				case(OP_NOT_EQUALS):
+					res[strlen(l) + 1] = '!'; res[strlen(l) + 2] = '='; break;
+				case(OP_AND):
+					res[strlen(l) + 1] = '&'; res[strlen(l) + 2] = '&'; break;
+				case(OP_OR):
+					res[strlen(l) + 1] = '|'; res[strlen(l) + 2] = '|'; break;
+				default:
+					res[strlen(l) + 1] = '?'; res[strlen(l) + 2] = '?';
+			}
+			return res;
+		default:
+			printf("ERROR NTS\n");
+	}
+	return res;
 }
 
 /**************** DEBUG ********************/

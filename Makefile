@@ -13,7 +13,7 @@ IMAGE_VIEWER=eog
 LEX_FILE=lexparser.lex
 YACC_FILE=synparser.y
 LIBS=includes/node.c includes/static_analysis.c includes/dotoutput.c
-SRC=exemples/bidon.src
+SRC=exemples/f5ex1.src
 
 # Générés
 AUTOMATON_FILE=afd.c
@@ -43,7 +43,7 @@ $(SYNTAXIC_ANALYSER).c: $(YACC_FILE)
 # -g pour débugguer
 $(SYNTAXIC_ANALYSER): $(AUTOMATON_FILE) $(SYNTAXIC_ANALYSER).c $(LIBS)
 	@echo "===== Compiling "$(SYNTAXIC_ANALYSER)" ====="
-	gcc -o $(SYNTAXIC_ANALYSER) $(LIBS) $(SYNTAXIC_ANALYSER).c $(AUTOMATON_FILE) -DPROD_INTER=0
+	gcc -g -o $(SYNTAXIC_ANALYSER) $(LIBS) $(SYNTAXIC_ANALYSER).c $(AUTOMATON_FILE) -DPROD_INTER=0
 	#gcc -Wall -Wextra -o $(SYNTAXIC_ANALYSER) $(LIBS) $(SYNTAXIC_ANALYSER).c $(AUTOMATON_FILE) -DPROD_INTER=0
 
 # make run exécute l'analyseur sur le fichier source

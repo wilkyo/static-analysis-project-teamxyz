@@ -18,13 +18,18 @@ int checkTreeBeforeAnalysis(node * root) {
 /* Constructeurs */
 
 declaration * mk_declaration(int id, char * name, declaration * list) {
-	declaration * nlist = malloc(sizeof(block_list));
+	declaration * nlist = malloc(sizeof(declaration));
 	nlist->vId = id;
 	nlist->vName = name;
 	nlist->next = list;
 	return nlist;
 }
-
+/*
+	block_list * nlist = malloc(sizeof(block_list));
+	nlist->val = b;
+	nlist->next = list;
+	return nlist;
+	*/
 block_list * mk_block_list(block * b, block_list * list) {
 	if(list == NULL) {
 		list = malloc(sizeof(block_list));
@@ -38,26 +43,27 @@ block_list * mk_block_list(block * b, block_list * list) {
 	return list;
 }
 
-block * mk_block(int label, blockType bType, type sType, int assignedVar, int_list * vars) {
+block * mk_block(int label, blockType bType, type sType, int assignedVar, int_list * vars, char * str) {
 	block * res = malloc(sizeof(block));
 	res->label = label;
 	res->bType = bType;
 	res->sType = sType;
 	res->assignedVar = assignedVar;
 	res->variables = vars;
+	res->str = str;
 	return res;
 }
 
-block * mk_block_assign(int label, type sType, int assignedVar, int_list * vars) {
-	return mk_block(label, B_ASSIGN, sType, assignedVar, vars);
+block * mk_block_assign(int label, int assignedVar, int_list * vars, char * str) {
+	return mk_block(label, B_ASSIGN, T_ASSIGN, assignedVar, vars, str);
 }
 
-block * mk_block_bool_exp(int label, int_list * vars) {
-	return mk_block(label, B_BOOL_EXP, T_BINARY_BOOLEAN, 0, vars);
+block * mk_block_bool_exp(int label, type sType, int_list * vars, char * str) {
+	return mk_block(label, B_BOOL_EXP, sType, 0, vars, str);
 }
 
 block * mk_block_skip(int label) {
-	return mk_block(label, B_SKIP, T_SKIP, 0, NULL);
+	return mk_block(label, B_SKIP, T_SKIP, 0, NULL, NULL);
 }
 
 flow * mk_flow(int start, int end) {
@@ -70,6 +76,13 @@ flow_list * mk_flow_list(flow * f, flow_list * list) {
 
 flow_list * rm_flow_list(flow * f, flow_list * list) {
 	// TODO JB
+}
+
+int_list * mk_int_list(int i, int_list * list) {
+	int_list * nlist = malloc(sizeof(block_list));
+	nlist->val = i;
+	nlist->next = list;
+	return nlist;
 }
 
 
@@ -122,6 +135,17 @@ int contains(flow * f, flow_list * list) {
 	// TODO JB
 }
 
+int_list * union_int_list(int_list * l1, int_list * l2) {
+	if(l1 == NULL) return l2;
+	if(l2 == NULL) return l1;
+	int_list * tmp = l1;
+	while(tmp->next != NULL) {
+		tmp = tmp->next;
+	}
+	tmp->next = l2;
+	return l1;
+}
+
 
 /* Analysis */
 
@@ -139,19 +163,60 @@ declaration * initDeclarations(node * n) {
 		_decls = mk_declaration(i++, n->children[0]->info->label, _decls);
 }
 
-int initAssignBlock(node * n, int lastLabel, type sType, int depth) {
-	printf("%d\n", lastLabel);
-	block * b = mk_block_assign(++lastLabel, sType, getDeclarationIdWithName(_decls, n->children[0]->info->label), NULL);
-	printf("b: %d, %d\n", b->label, b->assignedVar);
-	initScanRec(n->children[0], lastLabel, depth + 1);
-	initScanRec(n->children[1], lastLabel, depth + 1);
+/**
+ * Retourne la liste d'id des variables de l'expression.
+ */
+int_list * getListVariables(node * n) {
+	switch(n->nodeType) {
+		case(T_IDENTIFIER) :
+			return mk_int_list(getDeclarationIdWithName(_decls, n->info->label), NULL);
+		case(T_UNARY_ARITHMETIC) :
+			return getListVariables(n->children[0]);
+		case(T_BINARY_ARITHMETIC) :
+			return union_int_list(getListVariables(n->children[0]), getListVariables(n->children[1]));
+		case(T_UNARY_BOOLEAN) :
+			return getListVariables(n->children[0]);
+		case(T_BINARY_BOOLEAN) :
+			return union_int_list(getListVariables(n->children[0]), getListVariables(n->children[1]));
+		default:
+			return NULL;
+	}
+}
+
+int initSkipBlock(int lastLabel) {
+	block * b = mk_block_skip(++lastLabel);
+	_blocks = mk_block_list(b, _blocks);
+	printf("b: %d\n", b->label);
+	return lastLabel;
+}
+
+int initBoolExpBlock(node * n, int lastLabel, type sType, int depth) {
+	block * b = mk_block_bool_exp(++lastLabel, sType,
+		getListVariables(n->children[0]), node_to_string(n->children[0]));
+	_blocks = mk_block_list(b, _blocks);
+	printf("b: %d: %s\n", b->label, b->str);
+	if(sType == T_IF_STATEMENT) {
+		lastLabel = initScanRec(n->children[1], lastLabel, depth + 1);
+		lastLabel = initScanRec(n->children[2], lastLabel, depth + 1);
+	} else if(sType == T_WHILE_STATEMENT) {
+		lastLabel = initScanRec(n->children[1], lastLabel, depth + 1);
+	}
+	return lastLabel;
+}
+
+int initAssignBlock(node * n, int lastLabel, int depth) {
+	block * b = mk_block_assign(++lastLabel,
+		getDeclarationIdWithName(_decls, n->children[0]->info->label),
+		getListVariables(n->children[1]), node_to_string(n->children[1]));
+	_blocks = mk_block_list(b, _blocks);
+	printf("b: %d, %d: %s\n", b->label, b->assignedVar, b->str);
 	return lastLabel;
 }
 
 int initScanRec(node * n, int lastLabel, int depth);
 
 int initScanList(node *n, int lastLabel, int depth) {
-	printf("L%d\n", lastLabel);
+	//printf("L%d\n", lastLabel);
 	printf("NodeList: %s, %d\n", n->lexeme, n->info->val->intT);
 	if (n->info->val->intT == 1) {
 		return initScanRec(n->children[0], lastLabel, depth);
@@ -162,103 +227,32 @@ int initScanList(node *n, int lastLabel, int depth) {
 }
 
 int initScanRec(node * n, int lastLabel, int depth) {
-	printf("R%d\n", lastLabel);
+	//printf("R%d\n", lastLabel);
 	printf("Node[%d]: %s\n", depth, n->lexeme);
 	switch(n->nodeType) {
-		case(T_VALUE_TRUE):
-			break;
-		case(T_VALUE_FALSE):
-			break;
-		case(T_VALUE_INT):
-			break;
-		case(T_VALUE_DECIMAL):
-			break;
-		case(T_IDENTIFIER):
-			break;
-		case(T_ARRAY_INDEX) :
-			break;
-		case(T_UNARY_ARITHMETIC) :
-			break;
-		case(T_BINARY_ARITHMETIC) :
-			switch(n->info->op) {
-				case(OP_ADD):
-					break;
-				case(OP_SUB):
-					break;
-				case(OP_MULT):
-					break;
-				case(OP_DIV):
-					break;
-			}
-			initScanRec(n->children[0], lastLabel, depth + 1);
-			initScanRec(n->children[1], lastLabel, depth + 1);
-			break;
-		case(T_UNARY_BOOLEAN) :
-			;
-		case(T_BINARY_BOOLEAN) :
-			switch(n->info->op) {
-				case(OP_LOWER_THAN):
-			;
-				case(OP_GREATER_THAN):
-			;
-				case(OP_LOWER_EQUALS):
-			;
-				case(OP_GREATER_EQUALS):
-			;
-				case(OP_EQUALS):
-			;
-				case(OP_NOT_EQUALS):
-			;
-				case(OP_AND):
-			;
-				case(OP_OR):
-			;
-			}
-			lastLabel = initScanRec(n->children[0], lastLabel, depth + 1);
-			return initScanRec(n->children[1], lastLabel, depth + 1);
-			break;
 		case(T_SKIP):
-			break;
-		case(T_TYPE_INT):
-			break;
-		case(T_TYPE_DECIMAL):
-			break;
-		case(T_TYPE_ARRAY):
-			break;
-		case(T_RETURN):
-			break;
+			return initSkipBlock(lastLabel);
 		case(T_ASSIGN):
-			return initAssignBlock(n, lastLabel, T_ASSIGN, depth);
-		case(T_FREE):
-			break;
-		case(T_NEW):
-			break;
-		case(T_FUNCTION_CALL):
-			break;
-		case(T_PARAMETER):
-			break;
+			return initAssignBlock(n, lastLabel, depth);
 		case(T_LIST):
 			return initScanList(n, lastLabel, depth);
 		case(T_IF_STATEMENT):
-			break;
+			return initBoolExpBlock(n, lastLabel, T_IF_STATEMENT, depth);
 		case(T_WHILE_STATEMENT):
-			break;
+			return initBoolExpBlock(n, lastLabel, T_WHILE_STATEMENT, depth);
 		case(T_BLOCK_STATEMENT):
-			lastLabel = initScanRec(n->children[0], lastLabel, depth + 1);
-			return initScanRec(n->children[1], lastLabel, depth + 1);
-			break;
+			if(n->info->val->intT == 0)
+				return initScanRec(n->children[0], lastLabel, depth + 1);
+			else {
+				lastLabel = initScanRec(n->children[0], lastLabel, depth + 1);
+				return initScanRec(n->children[1], lastLabel, depth + 1);
+			}
 		case(T_DECLARATION_STATEMENT):
 			initDeclarations(n->children[1]);
 			return lastLabel;
 		case(T_PROGRAM):
 			lastLabel = initScanRec(n->children[0], lastLabel, depth + 1);
-	printf("P%d\n", lastLabel);
 			return initScanRec(n->children[1], lastLabel, depth + 1);
-		break;
-    case(T_FUNCTION_DECLARATION):
-			;
-    case(T_PROCEDURE_DECLARATION):
-			;
 	}
 	return lastLabel;
 }
@@ -266,8 +260,6 @@ int initScanRec(node * n, int lastLabel, int depth) {
 void initScan(node * root) {
 	// TODO Wk
 	initScanRec(root, 0, 0);
-	//_blocks = mk_block_list(mk_block_skip(42), NULL);
-	//_blocks = mk_block_list(mk_block_skip(12), _blocks);
 }
 
 declaration * getVariablesDeclarations() {
