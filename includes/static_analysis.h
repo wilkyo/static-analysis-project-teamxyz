@@ -85,6 +85,7 @@ int_list * rm_int_list(int_list * list);
 /* Getters */
 
 char * getDeclarationNameWithId(declaration * list, int id);
+int getDeclarationIdWithName(declaration * list, char * name);
 
 block * getBlockWithLabel(block_list * list, int label);
 
