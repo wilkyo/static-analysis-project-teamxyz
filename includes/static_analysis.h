@@ -81,8 +81,13 @@ flow_list * mk_flow_list(flow * f, flow_list * list);
 flow_list * rm_flow_list(flow * f, flow_list * list);
 
 int_list * mk_int_list(int val, int_list * list);
-int_list * free_int_list(int_list * list);
+int_list * rm_int_list(int val, int_list * list);
 
+/* Destructeur */
+
+void free_int_list(int_list * list);
+void free_flow(flow * f);
+void free_blocks(block * b);
 
 /* Getters */
 
@@ -103,7 +108,8 @@ int get_last_label(int_list * list);
 
 int contains(flow * f, flow_list * list);
 int_list * union_int_list(int_list * l1, int_list * l2);
-
+int_list * copy_int_list(int_list * list);
+int_list * minus_int_list(int_list * l1, int_list * l2);
 
 /* Analysis */
 

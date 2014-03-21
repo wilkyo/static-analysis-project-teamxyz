@@ -125,14 +125,55 @@ int_list * mk_int_list(int val, int_list * list) {
 	return nlist;
 }
 
-int_list * free_int_list(int_list * list)
+int_list * rm_int_list(int val, int_list * list)
+{
+	if(list != NULL)
+	{
+		if(list->val == val)
+		{
+			int_list * aux = list;
+			list = aux->next;
+			free(aux);
+		}
+		else
+		{
+			int_list * aux = list;
+			while(aux->next != NULL)
+			{
+				if(aux->next->val == val)
+				{
+					int_list * aux2 = aux->next;
+					aux->next = aux2->next;
+					free(aux2);
+					break;
+				}	
+			}
+		}
+	}
+	return list;
+}
+
+/* Destructeur */
+
+void free_int_list(int_list * list)
 {
 	if(list != NULL)
 	{
 		free_int_list(list->next);
 		free(list);
-	}
-	return NULL;
+	}	
+}
+
+void free_flow(flow * f)
+{
+	free(f);
+}
+
+void free_blocks(block * b)
+{
+	free_int_list(b->variables);
+	free(b->str);
+	free(b);
 }
 
 
@@ -242,6 +283,31 @@ int_list * union_int_list(int_list * l1, int_list * l2) {
 	return l1;
 }
 
+int_list * copy_int_list(int_list * list)
+{
+	int_list * res = NULL;
+	int_list * aux = list;
+	while(aux != NULL)
+	{
+		res = mk_int_list(aux->val, res);
+		aux = aux->next;
+	}
+	return res;
+}
+
+int_list * minus_int_list(int_list * l1, int_list * l2)
+{
+	if(l1 == NULL) return NULL;
+	if(l2 == NULL) return l1;
+	int_list * res = copy_int_list(l1);
+	int_list * aux = l2;
+	while(l2 != NULL)
+	{
+		res = rm_int_list(l2->val, res);
+		aux = aux->next;
+	}
+	return res;
+}
 
 /* Analysis */
 

@@ -62,7 +62,7 @@ void mk_analysis_block(analysis_block ** block, int label)
 
 void rm_analysis_block(analysis_block ** block)
 {
-	(*block)->list = free_int_list((*block)->list);
+	free_int_list((*block)->list);
 	free((*block));
 	(*block)=NULL;
 }
