@@ -57,7 +57,7 @@ identifier		[a-z][a-zA-Z0-9]*
 "false"			{ count(); return(VALUE_FALSE); }
 {integer}		{ yylval.intT = atoi(yytext); count(); return(VALUE_INT); }
 {decimal}		{ yylval.floatT = atof(yytext); count(); return(VALUE_DECIMAL); }
-{identifier}		{ yylval.stringT = calloc(strlen(yytext), sizeof(char)); strcpy(yylval.stringT, yytext); count(); return(IDENTIFIER); }
+{identifier}		{ yylval.stringT = calloc(strlen(yytext) + 1, sizeof(char)); strcpy(yylval.stringT, yytext); count(); return(IDENTIFIER); }
 
 \n			{ line++; col = 0; }
 [[:blank:]]+		{ count(); }

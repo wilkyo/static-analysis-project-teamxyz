@@ -42,8 +42,8 @@
 program
 	: PROGRAM START vdecl_list statements END { $$ = mknode_program(line, col, NULL, NULL, mknode_start(line, col, $3, $4)); }
 	| PROGRAM pdecl_list START vdecl_list statements END { $$ = mknode_program(line, col, NULL, $2, mknode_start(line, col, $4, $5)); }
-	| PROGRAM IDENTIFIER START vdecl_list statements END { $$ = mknode_program(line, col, mkleaf_identifier(line, col, $2), NULL, mknode_start(line, col, $4, $5)); }
-	| PROGRAM IDENTIFIER pdecl_list START vdecl_list statements END { $$ = mknode_program(line, col, mkleaf_identifier(line, col, $2), $3, mknode_start(line, col, $5, $6)); }
+	| PROGRAM IDENTIFIER START vdecl_list statements END { $$ = mknode_program(line, col, mkleaf_identifier(line, col, $2), NULL, mknode_start(line, col, $4, $5)); free($2); }
+	| PROGRAM IDENTIFIER pdecl_list START vdecl_list statements END { $$ = mknode_program(line, col, mkleaf_identifier(line, col, $2), $3, mknode_start(line, col, $5, $6)); free($2); }
 	;
 
 pdecl_list
@@ -52,13 +52,13 @@ pdecl_list
 	;
 
 pdecl
-	: PROCEDURE IDENTIFIER L_PARENT parameter_list COMMA RES type IDENTIFIER R_PARENT START statements END { $$ = mknode_function_declaration(line, col, mkleaf_identifier(line, col, $2), $4, mknode_parameter(line, col, mkleaf_identifier(line, col, $8), $7), $11); }
-	| PROCEDURE IDENTIFIER L_PARENT parameter_list R_PARENT START statements END { $$ = mknode_procedure_declaration(line, col, mkleaf_identifier(line, col, $2), $4, $7); }
+	: PROCEDURE IDENTIFIER L_PARENT parameter_list COMMA RES type IDENTIFIER R_PARENT START statements END { $$ = mknode_function_declaration(line, col, mkleaf_identifier(line, col, $2), $4, mknode_parameter(line, col, mkleaf_identifier(line, col, $8), $7), $11); free($8); }
+	| PROCEDURE IDENTIFIER L_PARENT parameter_list R_PARENT START statements END { $$ = mknode_procedure_declaration(line, col, mkleaf_identifier(line, col, $2), $4, $7); free($2); }
 	;
 
 parameter_list
-	: type IDENTIFIER { $$ = mknode_list(line, col, NULL, mknode_parameter(line, col, mkleaf_identifier(line, col, $2), $1)); }
-	| parameter_list COMMA type IDENTIFIER { $$ = mknode_list(line, col, $1, mknode_parameter(line, col, mkleaf_identifier(line, col, $4), $3)); }
+	: type IDENTIFIER { $$ = mknode_list(line, col, NULL, mknode_parameter(line, col, mkleaf_identifier(line, col, $2), $1)); free($2); }
+	| parameter_list COMMA type IDENTIFIER { $$ = mknode_list(line, col, $1, mknode_parameter(line, col, mkleaf_identifier(line, col, $4), $3)); free($4); }
 	;
 
 vdecl_list
@@ -71,8 +71,8 @@ vdecl
 	;
 
 identifier_list
-	: IDENTIFIER { $$ = mknode_list(line, col, NULL, mkleaf_identifier(line, col, $1)); }
-	| identifier_list COMMA IDENTIFIER { $$ = mknode_list(line, col, $1, mkleaf_identifier(line, col, $3)); }
+	: IDENTIFIER { $$ = mknode_list(line, col, NULL, mkleaf_identifier(line, col, $1)); free($1); }
+	| identifier_list COMMA IDENTIFIER { $$ = mknode_list(line, col, $1, mkleaf_identifier(line, col, $3)); free($3); }
 	;
 
 type
@@ -98,19 +98,19 @@ statement
 	| IF boolean_expression THEN block { $$ = mknode_if(line, col, $2, $4, NULL); }
 	| IF boolean_expression THEN block ELSE block { $$ = mknode_if(line, col, $2, $4, $6); }
 	| WHILE boolean_expression DO block { $$ = mknode_while(line, col, $2, $4) ; }
-	| CALL IDENTIFIER L_PARENT expression_list R_PARENT { $$ = mknode_function_call(line, col, mkleaf_identifier(line, col, $2), $4); }
+	| CALL IDENTIFIER L_PARENT expression_list R_PARENT { $$ = mknode_function_call(line, col, mkleaf_identifier(line, col, $2), $4); free($2); }
 	;
 
 ident
-	: IDENTIFIER { $$ = mkleaf_identifier(line, col, $1); }
-	| IDENTIFIER L_BRACKET aexpr R_BRACKET { $$ = mknode_array_index(line, col, mkleaf_identifier(line, col, $1), $3); }
+	: IDENTIFIER { $$ = mkleaf_identifier(line, col, $1); free($1); }
+	| IDENTIFIER L_BRACKET aexpr R_BRACKET { $$ = mknode_array_index(line, col, mkleaf_identifier(line, col, $1), $3); free($1); }
 	;
 
 aexpr
 	: VALUE_INT { $$ = mkleaf_int(line, col, $1); }
 	| VALUE_DECIMAL { $$ = mkleaf_decimal(line, col, $1); }
-	| IDENTIFIER { $$ = mkleaf_identifier(line, col, $1); }
-	| IDENTIFIER L_BRACKET arithmetic_expression R_BRACKET %prec POSTFIX { $$ = mknode_array_index(line, col, mkleaf_identifier(line, col, $1), $3); }
+	| IDENTIFIER { $$ = mkleaf_identifier(line, col, $1); free($1); }
+	| IDENTIFIER L_BRACKET arithmetic_expression R_BRACKET %prec POSTFIX { $$ = mknode_array_index(line, col, mkleaf_identifier(line, col, $1), $3); free($1); }
 	| aexpr PLUS aexpr { $$ = mknode_binary_arithmetic(line, col, $1, OP_ADD, $3); }
 	| aexpr MINUS aexpr { $$ = mknode_binary_arithmetic(line, col, $1, OP_SUB, $3); }
 	| aexpr MULT aexpr { $$ = mknode_binary_arithmetic(line, col, $1, OP_MULT, $3); }
@@ -125,8 +125,8 @@ expression_list
 arithmetic_expression
 	: VALUE_INT { $$ = mkleaf_int(line, col, $1); }
 	| VALUE_DECIMAL { $$ = mkleaf_decimal(line, col, $1); }
-	| IDENTIFIER { $$ = mkleaf_identifier(line, col, $1); }
-	| IDENTIFIER L_BRACKET arithmetic_expression R_BRACKET %prec POSTFIX { $$ = mknode_array_index(line, col, mkleaf_identifier(line, col, $1), $3); }
+	| IDENTIFIER { $$ = mkleaf_identifier(line, col, $1); free($1); }
+	| IDENTIFIER L_BRACKET arithmetic_expression R_BRACKET %prec POSTFIX { $$ = mknode_array_index(line, col, mkleaf_identifier(line, col, $1), $3); free($1); }
 	| MINUS arithmetic_expression %prec UNARY { $$ = mknode_unary_arithmetic(line, col, OP_MINUS, $2); }
 	| arithmetic_expression PLUS arithmetic_expression { $$ = mknode_binary_arithmetic(line, col, $1, OP_ADD, $3); }
 	| arithmetic_expression MINUS arithmetic_expression { $$ = mknode_binary_arithmetic(line, col, $1, OP_SUB, $3); }
@@ -164,10 +164,13 @@ int main(int argc, char ** argv) {
 		if (!yyparse()) {
 			printf("Syntaxic analysis successful\n");
 			fclose(yyin);
+
+			to_dot("ast.dot", root);
 	
 			if(checkTreeBeforeAnalysis(root)) {
 				// Analyse statique
-				initScan(root);
+				//initScan(root);
+				free_node(root);
 				declaration * vars = getVariablesDeclarations();
 				block_list * blocks = getBlocks();
 				flow_list * flows = getFlow();
@@ -185,7 +188,6 @@ int main(int argc, char ** argv) {
 					printf("Static analysis failed\n");
 			}
 
-			to_dot("ast.dot", root);
 			return 0;
 		}
 		fclose(yyin);

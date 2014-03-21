@@ -16,7 +16,6 @@ node * mk_leaf_id(int line, int col, char * lexeme, char * label, type nodeType)
 	strcpy(n->lexeme, lexeme);
 	n->nodeType = nodeType;
 	attribute * info = malloc(sizeof(attribute));
-	label = "test";
 	info->label = malloc((strlen(label)+1) * sizeof(char));
 	strcpy(info->label, label);
 	n->info = info;
@@ -110,20 +109,20 @@ node * mknode_type_array(int line, int col, node * expr) {
 /*************** Functions *****************/
 
 node * mknode_return(int line, int col, node * expr) {
-	node ** children = malloc(sizeof(node));
+	node ** children = calloc(1, sizeof(node*));
 	children[0] = expr;
 	return mk_node(line, col, "RETURN", NULL, T_RETURN, children);
 }
 
 node * mknode_assign(int line, int col, node * left, node * right) {
-	node ** children = malloc(2 * sizeof(node));
+	node ** children = calloc(2, sizeof(node*));
 	children[0] = left;
 	children[1] = right;
 	return mk_node(line, col, "ASSIGN", NULL, T_ASSIGN, children);
 }
 
 node * mknode_free(int line, int col, node * expr) {
-	node ** children = malloc(sizeof(node));
+	node ** children = calloc(1, sizeof(node*));
 	children[0] = expr;
 	return mk_node(line, col, "FREE", NULL, T_FREE, children);
 }
@@ -155,11 +154,11 @@ node * mknode_list(int line, int col, node * list, node * expr) {
 	node ** children;
 	if(list == NULL) {
 		info->val->intT = 1; // Length of the list
-		children = malloc(sizeof(node));
+		children = calloc(1, sizeof(node*));
 		children[0] = expr;
 	} else {
 		info->val->intT = list->info->val->intT + 1;
-		children = malloc(2 * sizeof(node));
+		children = calloc(2, sizeof(node*));
 		children[0] = list;
 		children[1] = expr;
 	}
@@ -199,7 +198,7 @@ node * mknode_unary_arithmetic(int line, int col, operator op, node * expr) {
 
 node * mknode_binary_arithmetic(int line, int col, node * left, operator op, node * right) {
 	attribute * info = malloc(sizeof(attribute));
-	node ** children = malloc(2 * sizeof(node));
+	node ** children = calloc(2, sizeof(node*));
 	info->op = op;
 	children[0] = left;
 	children[1] = right;
@@ -208,7 +207,7 @@ node * mknode_binary_arithmetic(int line, int col, node * left, operator op, nod
 
 node * mknode_unary_boolean(int line, int col, operator op, node * expr) {
 	attribute * info = malloc(sizeof(attribute));
-	node ** children = malloc(sizeof(node));
+	node ** children = calloc(1, sizeof(node*));
 	info->op = op;
 	children[0] = expr;
 	return mk_node(line, col, "UNARY_BOOLEAN", info, T_UNARY_BOOLEAN, children);
@@ -216,7 +215,7 @@ node * mknode_unary_boolean(int line, int col, operator op, node * expr) {
 
 node * mknode_binary_boolean(int line, int col, node * left, operator op, node * right) {
 	attribute * info = malloc(sizeof(attribute));
-	node ** children = malloc(2 * sizeof(node));
+	node ** children = calloc(2, sizeof(node*));
 	info->op = op;
 	children[0] = left;
 	children[1] = right;
@@ -227,7 +226,7 @@ node * mknode_binary_boolean(int line, int col, node * left, operator op, node *
 
 node * mknode_if(int line, int col, node * boolExpr, node * thenExpr, node * elseExpr) {
 	//attribute * info = malloc(sizeof(attribute));
-	node ** children = malloc(3 * sizeof(node));
+	node ** children = calloc(3, sizeof(node*));
 	children[0] = boolExpr;
 	children[1] = thenExpr;
 	children[2] = elseExpr;
@@ -236,7 +235,7 @@ node * mknode_if(int line, int col, node * boolExpr, node * thenExpr, node * els
 
 node * mknode_while(int line, int col, node * boolExpr, node * statExpr) {
 	//attribute * info = malloc(sizeof(attribute));
-	node ** children = malloc(2 * sizeof(node));
+	node ** children = calloc(2, sizeof(node*));
 	children[0] = boolExpr;
 	children[1] = statExpr;
 	return mk_node(line, col, "WHILE_STATEMENT", NULL, T_WHILE_STATEMENT, children);
@@ -248,11 +247,11 @@ node * mknode_start(int line, int col, node * declList, node * blockStatement) {
 	info->val = malloc(sizeof(value));
 	if(declList == NULL) {
 		info->val->intT = 0;
-		children = malloc(sizeof(node));
+		children = calloc(1, sizeof(node*));
 		children[0] = blockStatement;
 	} else {
 		info->val->intT = declList->info->val->intT; // Number of declarations
-		children = malloc(2 * sizeof(node));
+		children = calloc(2, sizeof(node*));
 		children[0] = declList;
 		children[1] = blockStatement;
 	}
@@ -261,7 +260,7 @@ node * mknode_start(int line, int col, node * declList, node * blockStatement) {
 
 node * mknode_vdecl(int line, int col, node * typeDecl, node * idList) {
 	attribute * info = malloc(sizeof(attribute));
-	node ** children = malloc(2 * sizeof(node));
+	node ** children = calloc(2, sizeof(node*));
 	info->val = malloc(sizeof(value));
 	info->val->intT = idList->info->val->intT; // Number of identifiers declared
 	children[0] = typeDecl;
@@ -275,12 +274,12 @@ node * mknode_program(int line, int col, node * id, node * declList, node * stat
 	info->val = malloc(sizeof(value));
 	if(declList == NULL) {
 		info->val->intT = 0;
-		children = malloc(2 * sizeof(node));
+		children = calloc(2, sizeof(node*));
 		children[0] = id;
 		children[1] = statExpr;
 	} else {
 		info->val->intT = declList->info->val->intT; // Number of declarations
-		children = malloc(3 * sizeof(node));
+		children = calloc(3, sizeof(node*));
 		children[0] = id;
 		children[1] = declList;
 		children[2] = statExpr;
@@ -415,8 +414,14 @@ void free_node_children(node * parent, int n) {
 }
 
 void free_node(node * n) {
-	printf("Freeing node %s\n", n->lexeme);
+	if(DEBUG) printf("Freeing node %s\n", n->lexeme);
 	switch(n->nodeType) {
+		case(T_VALUE_TRUE):
+		case(T_VALUE_FALSE):
+		case(T_VALUE_INT):
+		case(T_VALUE_DECIMAL):
+			free(n->info->val);
+			break;
 		case(T_UNARY_ARITHMETIC) :
 		case(T_UNARY_BOOLEAN) :
 		case(T_TYPE_ARRAY):
@@ -457,8 +462,11 @@ void free_node(node * n) {
 		case(T_PROGRAM):
 			return free_node_children(n, (n->info->val->intT == 0 ? 1 : 2)
 				+ (n->children[0] == NULL ? 0 : 1));
+		default:;
 	}
+	//free(n->children);
 	free(n->lexeme);
+	free(n->info);
 	free(n);
 }
 

@@ -408,7 +408,6 @@ void initScan(node * root) {
 	_initLabel = 0;
 	_lastLabel = 0;
 	_final = initScanRec(root, mk_int_list(_lastLabel, NULL), 0);
-	free_node(root);
 }
 
 declaration * getVariablesDeclarations() {
