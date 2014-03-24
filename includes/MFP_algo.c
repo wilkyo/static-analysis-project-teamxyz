@@ -10,14 +10,21 @@ analysis_list* MFP()
 	//liste Analysis initialisation
 	analysis_list *analysis_l;
 	mk_analysis_list(&analysis_l);
-	init_analysis_list(&analysis_l, getFlow());
+	//init_analysis_list(&analysis_l, getFlow());
 	//initialisation analysis_list
 
+	//TODO trouver un cas ou cela ne marche pas 
 	flow_list *flcour = W;
 	while(flcour != NULL)
 	{
 		analysis_block *analysis = get_analysis_block(analysis_l, flcour->val->start);
-		if(is_in(flcour->val->start, getInit()))
+		if(analysis ==NULL)
+		{
+			mk_analysis_block(&analysis, flcour->val->start);
+			add_analysis_list(&analysis_l,analysis);
+		}
+
+		if(flcour->val->start == getInit())
 		{
 			//valeur d'initialisation => fonction a définir
 			//peut être a partir du block
@@ -31,7 +38,7 @@ analysis_list* MFP()
 		flcour = flcour->next;
 	}
 
-	//------------------------iteration-------------------
+	/*------------------------iteration-------------------*/
 
 	flow *cour=NULL;
 	while(!isEmpty_flow_list(W))
@@ -43,7 +50,8 @@ analysis_list* MFP()
 
 		if(! MFP_include(b1,b2))
 		{
-			analysis_block *ablock_res = union_analysis_list(b1,b2);
+			//analysis_block *ablock_res = union_analysis_list(b1,b2);
+			b1->list = union_int_list(b1->list,b2->list);
 			//TODO => verifier ce qui se passe en memoire
 			//changement d'affectation de 
 			//affect_analysis(analysis_union(b1,b2));
@@ -57,7 +65,7 @@ analysis_list* MFP()
 				//ajout de flow fcour
 				if(! contains(cour, flcour))
 				{
-					W=add_flow_list(flcour->val,W);
+					W=mk_flow_list(flcour->val,W);
 				}
 			}
 			flcour = flcour->next;
@@ -134,84 +142,58 @@ analysis_block* fonction_l(analysis_block *ablock)
 {
 	//LVentry(l) = (LVexit(l-1) - kill(l)) union gen(l)
 	//<=> LVentry(l) = (LVentry(l) - kill(l)) union gen(l)
-	ablock->list = union_int_list(minus_int_list(ablock, kill(ablock)),gen(ablock));
+	int_list *l1= minus_int_list(ablock->list, kill(ablock));
+	ablock->list = union_int_list(l1,gen(ablock));
 	return ablock;
 }
 
-/**
-renvoie l'union de 2 analysis block
-block1 => block a gauche de l'union 
-block2 => block a droite de l'union 
 
-concrétement la fonction retourne le block1 auquel on a ajoute 
-les informations du block2 (non presente dans le block1)
-*/
-analysis_block *union_analysis_list(analysis_block *block1, analysis_block * block2)
+void init_w(flow_list **w, flow_list* _flows)
 {
-	//TODO
-	return NULL;
-}
-
-
-/**
-renvoie l'union de 2 analysis block
-block_left => block a gauche de la soustraction 
-block_right => block a droite de la soustraction
-
-concrétement la fonction retourne le block_left auquel on a retire
-les informations du block_right (non presente dans le block1)
-*/
-analysis_block* minus(analysis_block* block_left,analysis_block *block_right)
-{
-	//TODO
-	return NULL;
-}
-
-/*
-//pour living variable : 
-analysis(l) : liste de variable 
-=> list_int ou alors char **
-
-block => 
-	-> label 
-	-> type
-	//if type == B_ASSIGN
-	-> left_expression => block.assignedVar
-	-> right_expression => block.variables// also in BOOL_EXP
-	//
-
-
-gen(block){
-	switch(block.bType)
-	{ 
-	case B_SKIP:
-		return "empty"; break;
-	case BOOL_EXP:
-		return free_varaibles(block.right_expression);
-	case B_ASSIGN:
-		return free_variables(block.right_expression);
-		break;
+	//WARNING : attention a ne jamais free les flows 
+	flow_list *fcour = _flows;
+	while(fcour != NULL)
+	{
+		mk_flow_list(fcour->val,*w);
+		fcour = fcour -> next;
 	}
 }
 
-kill(block)
+int_list* init(int label)
 {
-	switch(block.bType)
-	{ 
-		case B_SKIP:
-		case BOOL_EXP:
-			return "empty"; 
-			break;
-		case B_ASSIGN:
-			return block.left_expression;
-			break;
-	}	
+	//TODO
+	return NULL;
 }
 
-MFP_List* fonction_l(analysis_block* block)
+int_list* bottom(int label)
 {
-	// (LVexit(l) - kill(get_block(l)) union gen(get_block(l)))
-	union(minus(block.prec, kill(block.value)),gen(block.value));
+	//TODO
+	return NULL;	
 }
 
-*/
+int MFP_include(analysis_block *b1,analysis_block *b2)
+{
+	int_list *b1_cour = b1->list;
+	int_list *b2_cour = b2->list;
+	int foreign_element = 0;
+	int res = 0;//false
+
+	//parcours liste b2
+	while(b2_cour != NULL && !foreign_element)
+	{
+		b1_cour = b1->list;
+		int current = b2_cour->val;
+		//pour chaque element on parcours la lise b1 
+		//et on regarde  si il est dans b1
+		int find = 0;
+		while( (b1_cour != NULL) && (!find) )
+		{
+			if(b1_cour->val == current) 
+				find = 1;
+			b1_cour = b1_cour->next;
+		}
+
+		b2_cour=b2_cour->next;
+	}
+	return !foreign_element;
+}

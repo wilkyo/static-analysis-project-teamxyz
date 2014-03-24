@@ -23,7 +23,10 @@ void rm_analysis_list(analysis_list ** list, analysis_block *block);
 
 void mk_analysis_block(analysis_block ** block, int label);
 void rm_analysis_block(analysis_block ** block);
-//operateur ensembliste
-// union();
-// minus();
+
+/*
+	retourne le block contenant le label _label
+	si le label n'existe pas dans la liste retourne NULL
+*/
+analysis_block* get_analysis_block(analysis_list *_list, int _label);
 #endif

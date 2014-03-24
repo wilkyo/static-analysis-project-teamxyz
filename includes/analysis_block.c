@@ -67,6 +67,16 @@ void rm_analysis_block(analysis_block ** block)
 	(*block)=NULL;
 }
 
-//operateur ensembliste
-// union();
-// minus();
+analysis_block* get_analysis_block(analysis_list *_list, int _label)
+{
+	analysis_list *lcour = _list;
+	while(lcour != NULL)
+	{
+		if(lcour->block != NULL && lcour->block->label == _label)
+		{
+			return lcour;
+		}
+		lcour= lcour->next;
+	}
+	return NULL;
+}
