@@ -169,7 +169,7 @@ int main(int argc, char ** argv) {
 	
 			if(checkTreeBeforeAnalysis(root)) {
 				// Analyse statique
-				//initScan(root);
+				initScan(root);
 				free_node(root);
 				declaration * vars = getVariablesDeclarations();
 				block_list * blocks = getBlocks();
@@ -186,6 +186,8 @@ int main(int argc, char ** argv) {
 					printf("Static analysis successful\n");
 				else
 					printf("Static analysis failed\n");
+			} else {
+				printf("Static analysis can't be executed on this program\n");
 			}
 
 			return 0;

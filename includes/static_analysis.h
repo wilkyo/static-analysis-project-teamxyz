@@ -108,6 +108,7 @@ int get_last_label(int_list * list);
 /* Opérations ensemblistes */
 
 int contains(flow * f, flow_list * list);
+int contains_int_list(int i, int_list * list);
 int_list * union_int_list(int_list * l1, int_list * l2);
 int_list * copy_int_list(int_list * list);
 int_list * minus_int_list(int_list * l1, int_list * l2);

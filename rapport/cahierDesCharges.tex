@@ -1,0 +1,66 @@
+\documentclass[12pt,a4paper,oneside]{article}
+\usepackage{lmodern}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{float}
+
+\setlength{\topmargin}{-.5in}
+\setlength{\textheight}{9in}
+\setlength{\oddsidemargin}{.125in}
+\setlength{\textwidth}{6.25in}
+
+\hypersetup{
+    unicode=false,          % non-Latin characters in Acrobat’s bookmarks
+    pdftoolbar=true,        % show Acrobat’s toolbar?
+    pdfmenubar=true,        % show Acrobat’s menu?
+    pdffitwindow=false,     % window fit to page when opened
+    pdfnewwindow=true,      % links in new window
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=black,          % color of internal links (change box color with linkbordercolor)
+    citecolor=green,        % color of links to bibliography
+    filecolor=magenta,      % color of file links
+    urlcolor=cyan,          % color of external links
+    linktoc=page
+}
+
+\begin{document}
+
+\begin{titlepage}
+\begin{flushright}
+           \includegraphics[scale=0.30]{../images/univorleans.png}\\ 
+                      Département Informatique
+\end{flushright}
+\begin{center}
+\textbf{
+\huge{Rapport}\\
+\vspace{2mm}
+\huge{Projet Industriel}\\
+}
+
+\vspace{15mm}
+\begin{large}
+	\textit{Willy FRANÇOIS, Tristan MONEDIÈRE, Jean-Baptiste PERRIN}
+\end{large}
+
+\begin{figure}[b!]
+\begin{flushright}
+~~\\ ~~\\ ~~\\ ~~\\ ~~\\ ~~\\ ~~\\
+\large{Année Universitaire 2013-2014}
+\end{flushright}
+\end{figure}
+\end{titlepage}
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+\input{includes/introduction}
+\newpage
+
+
+
+\end{document}

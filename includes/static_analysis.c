@@ -12,10 +12,62 @@ int _lastLabel;
 int_list * _final;
 
 
-
-int checkTreeBeforeAnalysis(node * root) {
-	// TODO Wk
+int checkTreeBeforeAnalysisChildren(node * parent, int n) {
+	int i = 0;
+	int res = 0;
+	for(;i < n ; i++) {
+		if(!checkTreeBeforeAnalysis(parent->children[i]))
+			return 0;
+	}
 	return 1;
+}
+
+int checkTreeBeforeAnalysis(node * n) {
+	switch(n->nodeType) {
+		case(T_DECLARATION_STATEMENT):
+			return checkTreeBeforeAnalysisChildren(n, 2);
+		case(T_FREE):
+			return checkTreeBeforeAnalysisChildren(n, 1);
+		case(T_WHILE_STATEMENT):
+			return checkTreeBeforeAnalysisChildren(n, 2);
+		case(T_IF_STATEMENT):
+			return checkTreeBeforeAnalysisChildren(n, 3);
+		case(T_RETURN):
+			return checkTreeBeforeAnalysisChildren(n, n->children[0] == NULL ? 0 : 1);
+		case(T_BLOCK_STATEMENT):
+			return checkTreeBeforeAnalysisChildren(n, n->info->val->intT == 0 ? 1 : 2);
+		case(T_LIST):
+			if (n->info->val->intT > 1)
+				return checkTreeBeforeAnalysisChildren(n, 2);
+			else if (n->info->val->intT > 0)
+				return checkTreeBeforeAnalysisChildren(n, 1);
+			break;
+		case(T_PROGRAM):
+			return checkTreeBeforeAnalysisChildren(n, (n->info->val->intT == 0 ? 1 : 2)
+				+ (n->children[0] == NULL ? 0 : 1));
+		case(T_TYPE_ARRAY):
+		case(T_ARRAY_INDEX) :
+			printf("Array detected\n");
+			return 0;
+		case(T_FUNCTION_CALL):
+		case(T_PROCEDURE_DECLARATION):
+		case(T_FUNCTION_DECLARATION):
+		case(T_PARAMETER):
+			printf("Procedure detected\n");
+			return 0;
+		case(T_VALUE_TRUE):
+		case(T_VALUE_FALSE):
+		case(T_VALUE_INT):
+		case(T_VALUE_DECIMAL):
+		case(T_UNARY_ARITHMETIC) :
+		case(T_UNARY_BOOLEAN) :
+		case(T_BINARY_ARITHMETIC) :
+		case(T_BINARY_BOOLEAN) :
+		case(T_ASSIGN):
+		case(T_NEW):
+		default:
+			return 1;
+	}
 }
 
 /* Constructeurs */
@@ -285,14 +337,27 @@ int contains(flow * f, flow_list * list) {
 	return 0;
 }
 
+int contains_int_list(int i, int_list * list) {
+	if(list != NULL)
+	{
+		if(i == list->val)
+			return 1;
+		else
+			return contains_int_list(i, list->next);
+	}
+	return 0;
+}
+
 int_list * union_int_list(int_list * l1, int_list * l2) {
 	if(l1 == NULL) return l2;
 	if(l2 == NULL) return l1;
-	int_list * tmp = l1;
-	while(tmp->next != NULL) {
+	int_list * tmp = l2;
+	while(tmp != NULL) {
+		if(!contains_int_list(tmp->val, l1)) {
+			l1 = mk_int_list(tmp->val, l1);
+		}
 		tmp = tmp->next;
 	}
-	tmp->next = l2;
 	return l1;
 }
 
