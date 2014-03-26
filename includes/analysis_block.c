@@ -74,7 +74,7 @@ analysis_block* get_analysis_block(analysis_list *_list, int _label)
 	{
 		if(lcour->block != NULL && lcour->block->label == _label)
 		{
-			return lcour;
+			return lcour->block;
 		}
 		lcour= lcour->next;
 	}
