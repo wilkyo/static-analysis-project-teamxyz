@@ -48,6 +48,23 @@ analysis_list* MFP(flow_list *_flows )
 		analysis_block *b1 = get_analysis_block(analysis_l,cour->start);
 		analysis_block *b2 = get_analysis_block(analysis_l,cour->end);
 
+
+		//DEBUG
+		if(b1 == NULL) 
+		{
+			analysis_block *temp=NULL;
+			mk_analysis_block(&temp, cour->start);
+			add_analysis_list(&analysis_l,temp);
+			b1 = get_analysis_block(analysis_l,cour->start);
+		}
+		if(b2 == NULL) 
+		{
+			analysis_block *temp=NULL;
+			mk_analysis_block(&temp, cour->end);
+			add_analysis_list(&analysis_l,temp);
+			b2 = get_analysis_block(analysis_l,cour->end);
+		}
+
 		if(! MFP_include(b1,b2))
 		{
 			//analysis_block *ablock_res = union_analysis_list(b1,b2);
