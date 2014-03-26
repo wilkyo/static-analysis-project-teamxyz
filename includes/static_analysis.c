@@ -1,4 +1,5 @@
 #include "static_analysis.h"
+#include "MFP_algo.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -542,6 +543,8 @@ int start_static_analysis(declaration * vars, int initial, int_list * finals, fl
 	//if(getBlockWithLabel(blocks, 66) == NULL)
 	//	printf("Block 66 NULL\n");
 	// TODO TRT
+	analysis_list* results = NULL;
+	results = MFP(flows);
 	return 0;
 }
 

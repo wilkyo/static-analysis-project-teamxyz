@@ -1,14 +1,14 @@
 #include "MFP_algo.h"
 
-analysis_list* MFP()
+analysis_list* MFP(flow_list *_flows )
 {
 	/*---------------initialisation--------------*/
 	flow_list *W = (flow_list *)NULL; //init liste_label
 	//init_w
-	init_w(&W,getFlow());//copie de flows
+	init_w(&W,_flows);//copie de flows
 
 	//liste Analysis initialisation
-	analysis_list *analysis_l;
+	analysis_list *analysis_l = NULL;
 	mk_analysis_list(&analysis_l);
 	//init_analysis_list(&analysis_l, getFlow());
 	//initialisation analysis_list
@@ -57,7 +57,7 @@ analysis_list* MFP()
 			//affect_analysis(analysis_union(b1,b2));
 		}
 		//ajout des chemins depuis "end"
-		flcour = getFlow();
+		flcour = _flows;
 		while(flcour != NULL)
 		{
 			if(flcour->val->start == cour->end)
@@ -154,7 +154,7 @@ void init_w(flow_list **w, flow_list* _flows)
 	flow_list *fcour = _flows;
 	while(fcour != NULL)
 	{
-		mk_flow_list(fcour->val,*w);
+		*w = mk_flow_list(fcour->val,*w);
 		fcour = fcour -> next;
 	}
 }

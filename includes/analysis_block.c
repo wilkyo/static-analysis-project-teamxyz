@@ -7,6 +7,8 @@ void mk_analysis_list(analysis_list ** list)
 	if((*list) == NULL)
 	{
 		(*list) = malloc(sizeof(analysis_list));
+		(*list)->next = NULL;
+		(*list)->block = NULL;
 	}
 	else
 	{
@@ -16,12 +18,30 @@ void mk_analysis_list(analysis_list ** list)
 	}
 }
 
+//trt : ajout en fin de liste du block block a la liste *list
 void add_analysis_list(analysis_list ** list, analysis_block *block)
 {
+	//TODO ajouter des protection en cas d'envoie de NULL 
+	analysis_list *aux = *list;
+	analysis_list *prec = *list;
+	//parcours
+	if(aux != NULL) aux = aux->next;
+	while(aux != NULL)
+	{
+		prec = aux;
+		aux= aux->next;
+	}
+	//creation du block_list, prec dernier bloc de la liste
+	mk_analysis_list(&(prec->next));
+	//allocation du bloc
+	prec->block = block;
+
+	/*
 	mk_analysis_list(list);
 	analysis_list * aux = (*list);
 	while(aux->next != NULL) aux = aux->next;
 	aux->next->block = block;
+	*/
 }
 
 void rm_analysis_list(analysis_list ** list, analysis_block *block)
