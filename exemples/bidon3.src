@@ -1,0 +1,10 @@
+program bidon3
+begin
+int i, j;
+i := 2; j := 0;
+if (i >= 10 ) then
+i := i+4
+else
+( i := i+2; j := j+1 );
+skip
+end
