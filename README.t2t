@@ -1,0 +1,15 @@
+README
+Willy FRANCOIS, Tristan MONEDIERE, Jean-Baptiste PERRIN
+
+%!target  : art
+%!encoding: UTF-8 
+%!options : --outfile README.txt 
+= Compilation =
+
+Pour compiler l'analyseur, il suffit d'effectuer la commande :
+``$ make parser``
+
+= Exécution =
+
+Pour exécuter l'analyse, il suffit de faire la commande :
+``$ ./parser /chemin/vers/le/fichier``

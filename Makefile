@@ -61,6 +61,9 @@ show: $(TREE_FILE).$(TREE_FILE_TYPE)
 	@echo "===== Showing tree ====="
 	$(IMAGE_VIEWER) $(TREE_FILE).$(TREE_FILE_TYPE) 2> /dev/null &
 
+readme: README.t2t
+	@echo "===== Genereting readme ====="
+	txt2tags README.t2t
 
 # make clean nettoie les fichiers générés
 clean:
