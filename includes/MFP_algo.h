@@ -20,4 +20,5 @@ void init_w(flow_list **w, flow_list *_flows);
 int_list* init(int label);
 int_list* bottom(int label);
 int_list* free_variables(block *block);
+int is_in(int label, int_list * liste_label);
 #endif

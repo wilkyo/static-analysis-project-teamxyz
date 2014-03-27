@@ -166,10 +166,13 @@ int_list *kill(analysis_block *ablock)
 
 analysis_block* fonction_l(analysis_block *ablock)
 {
-	//LVentry(l) = (LVexit(l-1) - kill(l)) union gen(l)
-	//<=> LVentry(l) = (LVentry(l) - kill(l)) union gen(l)
-	int_list *l1= minus_int_list(ablock->list, kill(ablock));
-	ablock->list = union_int_list(l1,gen(ablock));
+	if(ablock != NULL)
+	{
+		//LVentry(l) = (LVexit(l-1) - kill(l)) union gen(l)
+		//<=> LVentry(l) = (LVentry(l) - kill(l)) union gen(l)
+		int_list *l1= minus_int_list(ablock->list, kill(ablock));
+		ablock->list = union_int_list(l1,gen(ablock));
+	}
 	return ablock;
 }
 
