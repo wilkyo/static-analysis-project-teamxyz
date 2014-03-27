@@ -1,6 +1,6 @@
 #include "MFP_algo.h"
 
-analysis_list* MFP(flow_list *_flows )
+analysis_list* MFP(flow_list *_flows, int_list *E)
 {
 	/*---------------initialisation--------------*/
 	flow_list *W = (flow_list *)NULL; //init liste_label
@@ -24,7 +24,7 @@ analysis_list* MFP(flow_list *_flows )
 			add_analysis_list(&analysis_l,analysis);
 		}
 
-		if(flcour->val->start == getInit())
+		if(is_in(flcour->val->start,E))
 		{
 			//valeur d'initialisation => fonction a définir
 			//peut être a partir du block
@@ -68,24 +68,25 @@ analysis_list* MFP(flow_list *_flows )
 		if(! MFP_include(fonction_l(b1),b2))
 		{
 			//analysis_block *ablock_res = union_analysis_list(b1,b2);
-			b1->list = union_int_list(b1->list,b2->list);
+			b2->list = union_int_list(b1->list,b2->list);
 			//TODO => verifier ce qui se passe en memoire
 			//changement d'affectation de 
 			//affect_analysis(analysis_union(b1,b2));
-		}
-		//ajout des chemins depuis "end"
-		flcour = _flows;
-		while(flcour != NULL)
-		{
-			if(flcour->val->start == cour->end)
+		
+			//ajout des chemins depuis "end"
+			flcour = _flows;
+			while(flcour != NULL)
 			{
-				//ajout de flow fcour
-				if(! contains(cour, flcour))
+				if(flcour->val->start == cour->end)
 				{
-					W=mk_flow_list(flcour->val,W);
+					//ajout de flow fcour
+					if(! contains(cour, flcour))
+					{
+						W=mk_flow_list(flcour->val,W);
+					}
 				}
+				flcour = flcour->next;
 			}
-			flcour = flcour->next;
 		}
 	}
 
@@ -190,15 +191,15 @@ int_list* bottom(int label)
 
 int MFP_include(analysis_block *b1,analysis_block *b2)
 {
-	int_list *b1_cour = b1->list;
-	int_list *b2_cour = b2->list;
+	int_list *b1_cour = b2->list;
+	int_list *b2_cour = b1->list;
 	int foreign_element = 0;
 	int res = 0;//false
 
 	//parcours liste b2
 	while(b2_cour != NULL && !foreign_element)
 	{
-		b1_cour = b1->list;
+		b1_cour = b2->list;
 		int current = b2_cour->val;
 		//pour chaque element on parcours la lise b1 
 		//et on regarde  si il est dans b1
@@ -209,8 +210,20 @@ int MFP_include(analysis_block *b1,analysis_block *b2)
 				find = 1;
 			b1_cour = b1_cour->next;
 		}
-
+		if(find == 0) foreign_element = 1;
 		b2_cour=b2_cour->next;
 	}
 	return !foreign_element;
+}
+
+int is_in(int label, int_list * liste_label)
+{
+	int_list * cour = liste_label;
+	int trouver = 0;
+	while(cour !=NULL && !trouver)
+	{
+		if(cour->val == label) trouver=1;
+		cour = cour->next;
+	}
+	return trouver;
 }

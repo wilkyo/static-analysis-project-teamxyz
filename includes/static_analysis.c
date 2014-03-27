@@ -609,7 +609,7 @@ int start_static_analysis(declaration * vars, int initial, int_list * finals, fl
 	//	printf("Block 66 NULL\n");
 	// TODO TRT
 	analysis_list* results = NULL;
-	results = MFP(flowsR);
+	results = MFP(flowsR,finals);
 	return 0;
 }
 
