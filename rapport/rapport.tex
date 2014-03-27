@@ -6,7 +6,33 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{float}
+\usepackage{listings}
+\usepackage{color}
 
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ %
+  backgroundcolor=\color{white}, 
+  basicstyle=\footnotesize, 
+  breakatwhitespace=false,  
+  breaklines=true,        
+  captionpos=b,
+  commentstyle=\color{mygreen},
+  frame=single,                    % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=C,                 % the language of the code
+  morekeywords={*,...},            % if you want to add more keywords to the set
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{mymauve},     % string literal style
+  tabsize=2,                       % sets default tabsize to 2 spaces
+}
 \setlength{\topmargin}{-.5in}
 \setlength{\textheight}{9in}
 \setlength{\oddsidemargin}{.125in}
@@ -30,7 +56,7 @@
 
 \begin{titlepage}
 \begin{flushright}
-           \includegraphics[scale=0.30]{images/univ_orleans}\\ 
+           \includegraphics[scale=0.1]{images/univ_orleans}\\ 
                       Département Informatique
 \end{flushright}
 \begin{center}
@@ -60,8 +86,79 @@
 
 \section{Introduction}
 \input{includes/introduction}
+\section{Répartition des tâches}
+Nous nous sommes répartid les tâches de la façon suivante :
+\begin{itemize}
+\item Willy c'est occuper de calculer les variables d'initialisations pour l'algorithme depuis l'AST. Ainsi que l'adaptation du compilateur.
+\item Tristan a mis en place l'algorithme d'analyse.
+\item Jean-Baptiste a réalisé les fonctions pour gérer les structures de données pour l'algorithme.
+\end{itemize}
+
+\section{Réalisation}
+\subsection{Compilateur}
+Afin d'éviter de refaire une compilateur, nous avons repris le compilateur de Willy à réalisé lors du module de compilation du semestre 2. Il générait un \emph{AST (Abstract Syntaxist Tree} pour le langage WHILE. Que nous avons modifié afin qu'il corresponde au modification du langage WHILE du projet.
+
+\subsection{Analyseur}
+\subsubsection{Structures de données}
+Afin de pouvoir contenir les informations pour et pendant l'analyse. Nous avons mis en place, un certain nombre de structures.
+
+\paragraph{}
+Une structure block\_type afin de pouvoir identifier chaque block.
+\begin{lstlisting}
+enum blockType {
+	B_ASSIGN, B_BOOL_EXP, B_SKIP
+};
+\end{lstlisting}
+
+\paragraph{}
+La structure declaration est une liste contenant l'ensemble des déclarations des variables.
+\begin{lstlisting}
+struct declaration {
+	int vId;
+	char * vName;
+	declaration * next;
+};
+\end{lstlisting}
+\paragraph{}
+Il s'agit d'une simple liste chaînée d'entier.
+\begin{lstlisting}
+struct int_list {
+	int val;
+	int_list * next;
+};
+
+struct block_list {
+	block * val;
+	block_list * next;
+};
+
+struct block {
+	int label;
+	blockType bType;
+	type sType;
+	int assignedVar;
+	int_list * variables;
+	char * str;
+};
+
+struct flow_list {
+	flow * val;
+	flow_list * next;
+};
+
+struct flow {
+	int start;
+	int end;
+};
+struct analysis_block{
+	int_list *list;
+	int label;
+};
+
+struct analysis_list{
+	analysis_block *block;
+	analysis_list* next;
+};
+\end{lstlisting}
 \newpage
-
-
-
 \end{document}
