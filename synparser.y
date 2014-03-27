@@ -178,8 +178,11 @@ int main(int argc, char ** argv) {
 				int initial = getInit();
 				int_list * finals = getFinal();
 
-				print_blocks(initial, flows, blocks);
+				printf("blocks: ");
+				print_blocks(blocks, flows, finals);
+				printf("flow: ");
 				print_flows(flows);
+				printf("flowR: ");
 				print_flows(flowsR);
 
 				if (start_static_analysis(vars, initial, finals, flows, flowsR, blocks))

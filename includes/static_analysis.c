@@ -255,7 +255,7 @@ char * getDeclarationNameWithId(declaration * list, int id) {
 
 int getDeclarationIdWithName(declaration * list, char * name) {
 	while(list != NULL) {
-		if(strcmp(list->vName, name))
+		if(!strcmp(list->vName, name))
 			return list->vId;
 		list = list->next;
 	}
@@ -269,6 +269,26 @@ block * getBlockWithLabel(block_list * list, int label) {
 		list = list->next;
 	}
 	return NULL;
+}
+
+flow_list * getFlowsWithStart(flow_list * list, int start) {
+	flow_list * flows = NULL;
+	flow_list * tmp = list;
+	while(tmp != NULL) {
+		if(tmp->val->start == start)
+			flows = mk_flow_list(tmp->val, flows);
+	}
+	return flows;
+}
+
+int_list * getFlowsEnd(flow_list * list) {
+	flow_list * tmp;
+	int_list * res = NULL;
+	while(tmp != NULL) {
+		res = mk_int_list(tmp->val->end, res);
+		tmp = tmp->next;
+	}
+	return res;
 }
 
 int isEmpty_flow_list(flow_list * list) {
@@ -429,31 +449,31 @@ int_list * initScanRec(node * n, int_list * lastLabels, int depth);
 int_list * initSkipBlock(int_list * lastLabels) {
 	int currentLabel = _lastLabel + 1;
 	int label;
-	printf("size: %d\n", get_size_int_list(lastLabels));
+	//printf("size: %d\n", get_size_int_list(lastLabels));
 	while((label = pop_int_list(&lastLabels)) != -1) {
 		if(currentLabel != _initLabel) {
 			flow * f = mk_flow(label, currentLabel);
 			_flow = mk_flow_list(f, _flow);
-			printf("FLOW(%d, %d)\n", f->start, f->end);
+			//printf("FLOW(%d, %d)\n", f->start, f->end);
 		}
 	}
 	block * b = mk_block_skip(currentLabel);
 	_blocks = mk_block_list(b, _blocks);
 	lastLabels = mk_int_list(currentLabel, lastLabels);
 	_lastLabel++;
-	printf("b: %d\n", b->label);
+	//printf("b: %d\n", b->label);
 	return lastLabels;
 }
 
 int_list * initBoolExpBlock(node * n, int_list * lastLabels, type sType, int depth) {
 	int currentLabel = _lastLabel + 1;
 	int label;
-	printf("size: %d\n", get_size_int_list(lastLabels));
+	//printf("size: %d\n", get_size_int_list(lastLabels));
 	while((label = pop_int_list(&lastLabels)) != -1) {
 		if(currentLabel != _initLabel) {
 			flow * f = mk_flow(label, currentLabel);
 			_flow = mk_flow_list(f, _flow);
-			printf("FLOW(%d, %d)\n", f->start, f->end);
+			//printf("FLOW(%d, %d)\n", f->start, f->end);
 		}
 	}
 	block * b = mk_block_bool_exp(currentLabel, sType,
@@ -461,7 +481,7 @@ int_list * initBoolExpBlock(node * n, int_list * lastLabels, type sType, int dep
 	_blocks = mk_block_list(b, _blocks);
 	lastLabels = mk_int_list(currentLabel, lastLabels);
 	_lastLabel++;
-	printf("b: %d: %s\n", b->label, b->str);
+	//printf("b: %d: %s\n", b->label, b->str);
 	if(sType == T_IF_STATEMENT) {
 		lastLabels = initScanRec(n->children[1], lastLabels, depth + 1);
 		int afterThen = pop_int_list(&lastLabels);
@@ -473,7 +493,7 @@ int_list * initBoolExpBlock(node * n, int_list * lastLabels, type sType, int dep
 		while((label = pop_int_list(&lastLabels)) != -1) {
 			flow * f = mk_flow(label, b->label);
 			_flow = mk_flow_list(f, _flow);
-			printf("FLOW(%d, %d)\n", f->start, f->end);
+			//printf("FLOW(%d, %d)\n", f->start, f->end);
 		}
 		lastLabels = mk_int_list(b->label, lastLabels);
 	}
@@ -483,12 +503,12 @@ int_list * initBoolExpBlock(node * n, int_list * lastLabels, type sType, int dep
 int_list * initAssignBlock(node * n, int_list * lastLabels, int depth) {
 	int currentLabel = _lastLabel + 1;
 	int label;
-	printf("size: %d\n", get_size_int_list(lastLabels));
+	//printf("size: %d\n", get_size_int_list(lastLabels));
 	while((label = pop_int_list(&lastLabels)) != -1) {
 		if(currentLabel != _initLabel) {
 			flow * f = mk_flow(label, currentLabel);
 			_flow = mk_flow_list(f, _flow);
-			printf("FLOW(%d, %d)\n", f->start, f->end);
+			//printf("FLOW(%d, %d)\n", f->start, f->end);
 		}
 	}
 	block * b = mk_block_assign(currentLabel,
@@ -497,7 +517,7 @@ int_list * initAssignBlock(node * n, int_list * lastLabels, int depth) {
 	_blocks = mk_block_list(b, _blocks);
 	lastLabels = mk_int_list(currentLabel, lastLabels);
 	_lastLabel++;
-	printf("b: %d, %d: %s\n", b->label, b->assignedVar, b->str);
+	//printf("b: %d, %d: %s\n", b->label, b->assignedVar, b->str);
 	return lastLabels;
 }
 
@@ -586,9 +606,69 @@ int_list * getFinal() {
 	return _final;
 }
 
+int print_blockSkip(block * b, block_list * blocks, flow_list * flows, int currentLabel, int_list * lastLabels) {
+	printf("[skip]%d ", currentLabel);
+	return currentLabel + 1;
+}
 
-void print_blocks(int initial, flow_list * flows, block_list * blocks) {
-	// TODO TRT
+int print_blockAssign(block * b, block_list * blocks, flow_list * flows, int currentLabel, int_list * lastLabels) {
+	printf("[%s := %s]%d ", getDeclarationNameWithId(_decls, b->assignedVar), b->str, currentLabel);
+	return currentLabel + 1;
+}
+
+int print_blockBoolIf(block * b, block_list * blocks, flow_list * flows, int currentLabel, int_list * lastLabels) {
+	printf("if [%s]%d then (", b->str);
+	return currentLabel + 1;
+}
+
+int print_blockBoolWhile(block * b, block_list * blocks, flow_list * flows, int currentLabel, int_list * lastLabels) {
+	printf("while [%s]%d do (", b->str, currentLabel);
+	flow_list * fls = getFlowsWithStart(flows, currentLabel);
+	int lastLabel = print_blocksRec(blocks, flows, currentLabel+1,
+		union_int_list(lastLabels, getFlowsEnd(fls)));
+	printf(") ; ");
+	return lastLabel + 1;
+}
+
+int print_blocksRec(block_list * blocks, flow_list * flows, int currentLabel, int_list * lastLabels) {
+	if(contains_int_list(currentLabel, lastLabels))
+		return currentLabel;
+	block * b = getBlockWithLabel(blocks, currentLabel);
+	switch(b->bType) {
+		case(B_ASSIGN):
+			currentLabel = print_blockAssign(b, blocks, flows, currentLabel, lastLabels);
+		case(B_BOOL_EXP):
+			if(b->sType == T_IF_STATEMENT) {
+				currentLabel = print_blockBoolIf(b, blocks, flows, currentLabel, lastLabels);
+			} else if(b->sType == T_WHILE_STATEMENT) {
+				currentLabel = print_blockBoolWhile(b, blocks, flows, currentLabel, lastLabels);
+			}
+		case(B_SKIP):
+			currentLabel = print_blockSkip(b, blocks, flows, currentLabel, lastLabels);
+	}
+	return print_blocksRec(blocks, flows, currentLabel, lastLabels);
+}
+
+void print_blocks(block_list * blocks, flow_list * flows, int_list * last) {
+	int currentLabel = print_blocksRec(blocks, flows, 1, last);
+	
+	// DEBUG
+	block * b = getBlockWithLabel(blocks, currentLabel);
+	switch(b->bType) {
+		case(B_ASSIGN):
+			print_blockAssign(b, blocks, flows, currentLabel, last);
+		case(B_BOOL_EXP):
+			if(b->sType == T_IF_STATEMENT) {
+				print_blockBoolIf(b, blocks, flows, currentLabel, last);
+			} else if(b->sType == T_WHILE_STATEMENT) {
+				print_blockBoolWhile(b, blocks, flows, currentLabel, last);
+			}
+		case(B_SKIP):
+			print_blockSkip(b, blocks, flows, currentLabel, last);
+	}
+	
+	printf("\n");
+	//printf("%s\n", getDeclarationNameWithId(_decls, 1));
 }
 
 void print_flows(flow_list * list) {
