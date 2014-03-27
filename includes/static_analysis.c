@@ -379,7 +379,7 @@ int_list * minus_int_list(int_list * l1, int_list * l2)
 	if(l2 == NULL) return l1;
 	int_list * res = copy_int_list(l1);
 	int_list * aux = l2;
-	while(l2 != NULL)
+	while(aux != NULL)
 	{
 		res = rm_int_list(l2->val, res);
 		aux = aux->next;
@@ -609,7 +609,7 @@ int start_static_analysis(declaration * vars, int initial, int_list * finals, fl
 	//	printf("Block 66 NULL\n");
 	// TODO TRT
 	analysis_list* results = NULL;
-	results = MFP(flows);
+	results = MFP(flowsR);
 	return 0;
 }
 

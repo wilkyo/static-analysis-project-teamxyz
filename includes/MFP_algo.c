@@ -65,7 +65,7 @@ analysis_list* MFP(flow_list *_flows )
 			b2 = get_analysis_block(analysis_l,cour->end);
 		}
 
-		if(! MFP_include(b1,b2))
+		if(! MFP_include(fonction_l(b1),b2))
 		{
 			//analysis_block *ablock_res = union_analysis_list(b1,b2);
 			b1->list = union_int_list(b1->list,b2->list);
