@@ -94,6 +94,7 @@ analysis_list* MFP(flow_list *_flows, int_list *E)
 				flcour = flcour->next;
 			}
 		}
+		if (fb1 !=NULL) free(fb1);
 	}
 
 	/*------------------- resultat ------------------------------*/
@@ -115,10 +116,15 @@ analysis_list* MFP(flow_list *_flows, int_list *E)
 	return analysis_l;
 }
 
-int_list *free_variables(block *block)
+int_list *free_variables(block *nblock)
 {
-	if(block != NULL)
-		return block->variables;
+	if(nblock != NULL)
+	{
+		int_list * test = mk_int_list(nblock->assignedVar,NULL);
+		int_list *res = minus_int_list(nblock->variables,test);
+		free(test);
+		return res;
+	}
 	return NULL;
 }
 
@@ -166,14 +172,18 @@ int_list *kill(analysis_block *ablock)
 
 analysis_block* fonction_l(analysis_block *ablock)
 {
+	analysis_block *res = NULL;
 	if(ablock != NULL)
 	{
 		//LVentry(l) = (LVexit(l-1) - kill(l)) union gen(l)
 		//<=> LVentry(l) = (LVentry(l) - kill(l)) union gen(l)
-		int_list *l1= minus_int_list(ablock->list, kill(ablock));
-		ablock->list = union_int_list(l1,gen(ablock));
+		mk_analysis_block(&(res),ablock->label);
+		int_list *l_kill = kill(ablock);
+		int_list *l1= minus_int_list(ablock->list, l_kill);
+		int_list *l_gen = gen(ablock);
+		res->list = union_int_list(l1,gen(ablock));
 	}
-	return ablock;
+	return res;
 }
 
 
