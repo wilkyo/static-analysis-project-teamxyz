@@ -2,6 +2,7 @@
 
 analysis_list* MFP(flow_list *_flows, int_list *E)
 {
+	printf("BEGIN MFP\n");
 	/*---------------initialisation--------------*/
 	flow_list *W = (flow_list *)NULL; //init liste_label
 	//init_w
@@ -44,6 +45,8 @@ analysis_list* MFP(flow_list *_flows, int_list *E)
 	while(!isEmpty_flow_list(W))
 	{
 		cour = pop_flow_list(&W);
+		
+		printf("cour: (%d, %d) \n", cour->start, cour->end);
 
 		analysis_block *b1 = get_analysis_block(analysis_l,cour->start);
 		analysis_block *b2 = get_analysis_block(analysis_l,cour->end);
@@ -52,6 +55,7 @@ analysis_list* MFP(flow_list *_flows, int_list *E)
 		//DEBUG
 		if(b1 == NULL) 
 		{
+			printf("b1 NULL %d\n", cour->start);
 			analysis_block *temp=NULL;
 			mk_analysis_block(&temp, cour->start);
 			add_analysis_list(&analysis_l,temp);
@@ -59,16 +63,18 @@ analysis_list* MFP(flow_list *_flows, int_list *E)
 		}
 		if(b2 == NULL) 
 		{
+			printf("b2 NULL %d\n", cour->end);
 			analysis_block *temp=NULL;
 			mk_analysis_block(&temp, cour->end);
 			add_analysis_list(&analysis_l,temp);
 			b2 = get_analysis_block(analysis_l,cour->end);
 		}
 
-		if(! MFP_include(fonction_l(b1),b2))
+		analysis_block * fb1 = fonction_l(b1);
+		if(! MFP_include(fb1, b2))
 		{
 			//analysis_block *ablock_res = union_analysis_list(b1,b2);
-			b2->list = union_int_list(b1->list,b2->list);
+			b2->list = union_int_list(fb1->list, b2->list);
 			//TODO => verifier ce qui se passe en memoire
 			//changement d'affectation de 
 			//affect_analysis(analysis_union(b1,b2));
@@ -80,7 +86,7 @@ analysis_list* MFP(flow_list *_flows, int_list *E)
 				if(flcour->val->start == cour->end)
 				{
 					//ajout de flow fcour
-					if(! contains(cour, flcour))
+					if(! contains(flcour->val, W))
 					{
 						W=mk_flow_list(flcour->val,W);
 					}
@@ -92,18 +98,20 @@ analysis_list* MFP(flow_list *_flows, int_list *E)
 
 	/*------------------- resultat ------------------------------*/
 
+	printf("Fin itérations\n");
 	//parcours des labels
-	flow_list *fcour = getFlow();
+	flow_list *fcour = _flows;
 
 	analysis_list *alcour = analysis_l;
 	while(fcour != NULL)
 	{
 		//a modifier ceci doit être des structures !!!
-		analysis_block *block = get_analysis_block(analysis_l,fcour->val->end);
-
-		alcour->block = fonction_l(block);
+		analysis_block *nblock = get_analysis_block(analysis_l, fcour->val->end);
+		alcour->block = fonction_l(nblock);
+		fcour = fcour->next;
 	}
 
+	printf("END MFP\n");
 	return analysis_l;
 }
 
