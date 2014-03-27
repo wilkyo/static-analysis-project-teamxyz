@@ -97,8 +97,6 @@ int getDeclarationIdWithName(declaration * list, char * name);
 
 block * getBlockWithLabel(block_list * list, int label);
 
-flow_list * getFlowsWithStart(flow_list * list, int start);
-
 int isEmpty_flow_list(flow_list * list);
 flow * head_flow_list(flow_list * list);
 // Supprime et retourne le premier élément
@@ -133,7 +131,8 @@ int_list * getFinal();
 void print_blocks(block_list * blocks, flow_list * flows, int_list * last);
 void print_flows(flow_list * flows);
 // Return 1 if success
-int start_static_analysis(declaration * vars, int initial, int_list * finals, flow_list * flows, flow_list * flowsR, block_list * blocks);//TRT
+int start_static_analysis(declaration * vars, int initial, int_list * finals, flow_list * flows, flow_list * flowsR, block_list * blocks);
+void print_kill_gen(block_list * list, declaration *dec_list);
 
 #endif
 

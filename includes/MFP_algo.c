@@ -14,7 +14,6 @@ analysis_list* MFP(flow_list *_flows, int_list *E)
 	//init_analysis_list(&analysis_l, getFlow());
 	//initialisation analysis_list
 
-	//TODO trouver un cas ou cela ne marche pas 
 	flow_list *flcour = W;
 	while(flcour != NULL)
 	{
@@ -100,18 +99,7 @@ analysis_list* MFP(flow_list *_flows, int_list *E)
 	/*------------------- resultat ------------------------------*/
 
 	printf("Fin itérations\n");
-	//parcours des labels
-	flow_list *fcour = _flows;
-
-	analysis_list *alcour = analysis_l;
-	while(fcour != NULL)
-	{
-		//a modifier ceci doit être des structures !!!
-		analysis_block *nblock = get_analysis_block(analysis_l, fcour->val->end);
-		alcour->block = fonction_l(nblock);
-		fcour = fcour->next;
-	}
-
+	//inutile ici, vu que l'on travaille avec une seule liste
 	printf("END MFP\n");
 	return analysis_l;
 }

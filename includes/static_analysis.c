@@ -688,12 +688,51 @@ void print_flows(flow_list * list) {
 
 // Return 1 if success
 int start_static_analysis(declaration * vars, int initial, int_list * finals, flow_list * flows, flow_list * flowsR, block_list * blocks) {
-	//printf("Block: %d\n", getBlockWithLabel(blocks, 42)->label);
-	//if(getBlockWithLabel(blocks, 66) == NULL)
-	//	printf("Block 66 NULL\n");
-	// TODO TRT
+
+	//print kill et gen
+	
+	print_kill_gen(blocks,vars);
+
 	analysis_list* results = NULL;
 	results = MFP(flowsR,finals);
 	return 0;
 }
 
+void print_kill_gen(block_list * list, declaration *dec_list)
+{
+		block_list *cour  = list;
+		printf("label \t| kill \t|gen \n");
+		while(cour != NULL)
+		{
+			if(cour -> val != NULL)
+			{
+				printf("%d \t |",cour->val->label);
+				//recuperation kill et gen
+				analysis_block * kill_block=NULL;
+				mk_analysis_block(&kill_block,cour->val->label);
+				int_list *lkill = kill(kill_block);
+				if(lkill == NULL)
+					printf("empty ");
+				while(lkill != NULL)
+				{
+					//aller chercher
+					if(lkill != NULL)
+						printf("%s \t",getDeclarationNameWithId(dec_list,lkill->val));
+					else
+						printf("| empty \t");
+					//on ne peut generer qu'une seule variable
+					analysis_block * gen_block=NULL;
+					mk_analysis_block(&gen_block,cour->val->label);
+					int_list *lgen = gen(gen_block);
+					if(lgen != NULL)
+						printf("| %s ",getDeclarationNameWithId(dec_list,lgen->val));
+					else
+						printf("| empty ");
+					lkill = lkill->next;
+				}
+				printf("\n");
+			
+				cour = cour -> next;
+			}
+		}
+}
