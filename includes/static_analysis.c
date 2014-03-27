@@ -352,13 +352,17 @@ int_list * union_int_list(int_list * l1, int_list * l2) {
 	if(l1 == NULL) return l2;
 	if(l2 == NULL) return l1;
 	int_list * tmp = l2;
+
+	int_list *res = copy_int_list(l1);
+
+
 	while(tmp != NULL) {
 		if(!contains_int_list(tmp->val, l1)) {
-			l1 = mk_int_list(tmp->val, l1);
+			res = mk_int_list(tmp->val, res);
 		}
 		tmp = tmp->next;
 	}
-	return l1;
+	return res;
 }
 
 int_list * copy_int_list(int_list * list)
