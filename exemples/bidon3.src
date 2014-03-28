@@ -5,6 +5,5 @@ i := 2; j := 0;
 if (i >= 10 ) then
 i := i+4
 else
-( i := i+2; j := j+1 );
-skip
+( i := i+2; j := j+1 )
 end

@@ -107,7 +107,9 @@ block * mk_block_bool_exp(int label, type sType, int_list * vars, char * str) {
 }
 
 block * mk_block_skip(int label) {
-	return mk_block(label, B_SKIP, T_SKIP, 0, NULL, NULL);
+	char * str = NULL;
+	asprintf(&str, "[skip]%d", label);
+	return mk_block(label, B_SKIP, T_SKIP, 0, NULL, str);
 }
 
 flow * mk_flow(int start, int end) {
@@ -277,12 +279,13 @@ flow_list * getFlowsWithStart(flow_list * list, int start) {
 	while(tmp != NULL) {
 		if(tmp->val->start == start)
 			flows = mk_flow_list(tmp->val, flows);
+		tmp = tmp->next;
 	}
 	return flows;
 }
 
 int_list * getFlowsEnd(flow_list * list) {
-	flow_list * tmp;
+	flow_list * tmp = list;
 	int_list * res = NULL;
 	while(tmp != NULL) {
 		res = mk_int_list(tmp->val->end, res);
@@ -611,7 +614,7 @@ int_list * getFinal() {
 }
 
 int print_blockSkip(block * b, block_list * blocks, flow_list * flows, int currentLabel, int_list * lastLabels) {
-	printf("[skip]%d ", currentLabel);
+	printf("%s ", b->str);
 	return currentLabel + 1;
 }
 
@@ -620,56 +623,99 @@ int print_blockAssign(block * b, block_list * blocks, flow_list * flows, int cur
 	return currentLabel + 1;
 }
 
+int getElseEnd(flow_list * flows, int beginElse) {
+	int cpt = beginElse;
+	flow_list * res = getFlowsWithStart(flows, beginElse);
+	flow * f = pop_flow_list(&res);
+	while(f->end > beginElse) {
+		res = getFlowsWithStart(flows, ++cpt);
+		f = pop_flow_list(&res);
+		if(f == NULL)
+			break;
+	}
+	return cpt;
+}
+
 int print_blockBoolIf(block * b, block_list * blocks, flow_list * flows, int currentLabel, int_list * lastLabels) {
-	printf("if [%s]%d then (", b->str);
+	printf("if [%s]%d then (", b->str, currentLabel);
+	flow_list * fls = getFlowsWithStart(flows, currentLabel);
+	pop_flow_list(&fls); // flow vers then
+	flow * prec = pop_flow_list(&fls); // flow vers else
+	int ifEnd = prec->end - 1;
+	fls = getFlowsWithStart(flows, ifEnd); // Récupération de l'après if then else
+	prec = pop_flow_list(&fls); // afterElse
+	int afterElse;
+	int elseEnd;
+	// Patch en cas de fin de programme par un if then else.
+	if(prec == NULL) {
+		// On met le dernier
+		elseEnd = -1000;
+	} else {
+		afterElse = prec->end;
+		elseEnd = afterElse - 1;
+	}
+	if(elseEnd < ifEnd)
+		elseEnd = getElseEnd(flows, ifEnd + 1);
+	//printf("ifEnd %d\n", ifEnd);
+	//printf("elseEnd %d\n", elseEnd);
+	int_list * ifList = mk_int_list(ifEnd, NULL);
+	currentLabel = print_blocksRec(blocks, flows, currentLabel+1, ifList);
+	printf(") else (");
+	free(ifList);
+	ifList = mk_int_list(elseEnd, NULL);
+	currentLabel = print_blocksRec(blocks, flows, currentLabel + 1, ifList);
+	free(ifList);
+	printf(") ; ");
+	//printf("CURRENT %d", currentLabel);
 	return currentLabel + 1;
 }
 
 int print_blockBoolWhile(block * b, block_list * blocks, flow_list * flows, int currentLabel, int_list * lastLabels) {
 	printf("while [%s]%d do (", b->str, currentLabel);
 	flow_list * fls = getFlowsWithStart(flows, currentLabel);
-	int lastLabel = print_blocksRec(blocks, flows, currentLabel+1,
-		union_int_list(lastLabels, getFlowsEnd(fls)));
+	pop_flow_list(&fls);
+	flow * f = pop_flow_list(&fls);
+	int endWhile;
+	if(f == NULL) {
+		// On met le dernier
+		endWhile = -1000;
+	} else {
+		endWhile = f->end - 1;
+	}
+	//printf("(%d)\n ", endWhile);
+	flow_list * whileList = mk_int_list(endWhile, NULL);
+	currentLabel = print_blocksRec(blocks, flows, currentLabel+1, whileList);
+	free(whileList);
 	printf(") ; ");
-	return lastLabel + 1;
+	//printf("(%d)\n ", currentLabel);
+	return currentLabel + 1;
 }
 
 int print_blocksRec(block_list * blocks, flow_list * flows, int currentLabel, int_list * lastLabels) {
-	if(contains_int_list(currentLabel, lastLabels))
-		return currentLabel;
 	block * b = getBlockWithLabel(blocks, currentLabel);
+	if(b == NULL) return currentLabel;
 	switch(b->bType) {
 		case(B_ASSIGN):
 			currentLabel = print_blockAssign(b, blocks, flows, currentLabel, lastLabels);
+			break;
 		case(B_BOOL_EXP):
 			if(b->sType == T_IF_STATEMENT) {
 				currentLabel = print_blockBoolIf(b, blocks, flows, currentLabel, lastLabels);
 			} else if(b->sType == T_WHILE_STATEMENT) {
 				currentLabel = print_blockBoolWhile(b, blocks, flows, currentLabel, lastLabels);
 			}
+			break;
 		case(B_SKIP):
 			currentLabel = print_blockSkip(b, blocks, flows, currentLabel, lastLabels);
+			break;
 	}
+	if(contains_int_list(currentLabel - 1, lastLabels))
+		return currentLabel - 1;
 	return print_blocksRec(blocks, flows, currentLabel, lastLabels);
 }
 
 void print_blocks(block_list * blocks, flow_list * flows, int_list * last) {
 	int currentLabel = print_blocksRec(blocks, flows, 1, last);
-	
-	// DEBUG
-	block * b = getBlockWithLabel(blocks, currentLabel);
-	switch(b->bType) {
-		case(B_ASSIGN):
-			print_blockAssign(b, blocks, flows, currentLabel, last);
-		case(B_BOOL_EXP):
-			if(b->sType == T_IF_STATEMENT) {
-				print_blockBoolIf(b, blocks, flows, currentLabel, last);
-			} else if(b->sType == T_WHILE_STATEMENT) {
-				print_blockBoolWhile(b, blocks, flows, currentLabel, last);
-			}
-		case(B_SKIP):
-			print_blockSkip(b, blocks, flows, currentLabel, last);
-	}
 	
 	printf("\n");
 	//printf("%s\n", getDeclarationNameWithId(_decls, 1));
