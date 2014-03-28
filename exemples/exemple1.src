@@ -1,4 +1,4 @@
-program p1
+program
 begin
 int x; x := 100;
 while ( 0 < x ) do (

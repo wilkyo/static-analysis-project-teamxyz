@@ -89,22 +89,24 @@
 \section{Répartition des tâches}
 Nous nous sommes répartis les tâches de la façon suivante :
 \begin{itemize}
-\item Willy c'est occuper de calculer les variables d'initialisations pour l'algorithme depuis l'AST. Ainsi que l'adaptation du compilateur.
+\item Willy c'est occupé de calculer les variables d'initialisation pour l'algorithme depuis l'AST. Ainsi que l'adaptation du compilateur.
 \item Tristan a mis en place l'algorithme d'analyse.
 \item Jean-Baptiste a réalisé les fonctions pour gérer les structures de données pour l'algorithme.
 \end{itemize}
 
 \section{Réalisation}
 \subsection{Compilateur}
-Afin d'éviter de refaire une compilateur, nous avons repris le compilateur que Willy à réalisé lors du module de compilation du semestre 2. Il générait un \emph{AST (Abstract Syntaxist Tree)} pour le langage WHILE. Que nous avons modifié afin qu'il corresponde au modification du langage WHILE du projet.
+Afin d'éviter de refaire une compilateur, nous avons repris le compilateur que Willy a réalisé lors du module de compilation du semestre 2.
+Il générait un \emph{AST (Abstract Syntaxic Tree)} pour le langage WHILE.
+Nous avons modifié le compilateur et l'arbre afin qu'il corresponde aux modifications du langage WHILE du projet.
 
 \subsection{Analyseur}
 
 \subsubsection{Structures de données}
-Afin de pouvoir contenir les informations pour et pendant l'analyse. Nous avons mis en place, un certain nombre de structures.
+Afin de pouvoir contenir les informations pour et pendant l'analyse, nous avons mis en place un certain nombre de structures.
 
 \paragraph{}
-Une structure block\_type afin de pouvoir identifier chaque block.
+Une structure block\_type afin de pouvoir identifier chaque bloc.
 \begin{lstlisting}
 enum blockType {
 	B_ASSIGN, B_BOOL_EXP, B_SKIP
@@ -122,7 +124,7 @@ struct declaration {
 \end{lstlisting}
 
 \paragraph{}
-Il s'agit d'une simple liste chaînée d'entier.
+Il s'agit d'une simple liste chaînée d'entiers.
 \begin{lstlisting}
 struct int_list {
 	int val;
@@ -131,7 +133,7 @@ struct int_list {
 \end{lstlisting}
 
 \paragraph{}
-Il s'agit d'un block du code à analyser.
+Il s'agit d'un bloc du code à analyser ([x := a], [b], [skip]).
 \begin{lstlisting}
 struct block {
 	int label;
@@ -144,7 +146,7 @@ struct block {
 \end{lstlisting}
 
 \paragraph{}
-C'est une liste chaînée qui contient l'ensemble des blocks
+C'est une liste chaînée qui contient l'ensemble des blocs.
 \begin{lstlisting}
 struct block_list {
 	block * val;
@@ -180,7 +182,7 @@ struct analysis_block{
 \end{lstlisting}
 
 \paragraph{}
-C'est une liste chaînée qui contient l'ensemble des blocks d'analyse.
+C'est une liste chaînée qui contient l'ensemble des blocs d'analyse.
 \begin{lstlisting}
 struct analysis_list{
 	analysis_block *block;
@@ -189,7 +191,8 @@ struct analysis_list{
 \end{lstlisting}
 
 \paragraph{}
-Chacune de ses structures possèdes ces fonctions afin de les manipuler. Vous trouverez l'ensemble des ses fonctions dans les .h associés.
+Chacune de ces structures possède ses fonctions afin de les manipuler.
+Vous trouverez l'ensemble des ces fonctions dans les .h associés.
 
 \subsubsection{Initialisation des variables de l'analyse}
 Afin d'initialiser les variables pour l'analyse, nous parcourons l'arbre et générons le flot, init, final, blocks.

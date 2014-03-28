@@ -272,6 +272,8 @@ node * mknode_program(int line, int col, node * id, node * declList, node * stat
 	attribute * info = malloc(sizeof(attribute));
 	node ** children;
 	info->val = malloc(sizeof(value));
+	if(id == NULL)
+		id = mkleaf_identifier(line, col, "");
 	if(declList == NULL) {
 		info->val->intT = 0;
 		children = calloc(2, sizeof(node*));
