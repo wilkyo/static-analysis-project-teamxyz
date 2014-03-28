@@ -708,28 +708,29 @@ void print_kill_gen(block_list * list, declaration *dec_list)
 			{
 				printf("%d \t |",cour->val->label);
 				//recuperation kill et gen
-				analysis_block * kill_block=NULL;
-				mk_analysis_block(&kill_block,cour->val->label);
-				int_list *lkill = kill(kill_block);
-				if(lkill == NULL)
+				analysis_block * gen_bloc=NULL;
+				mk_analysis_block(&gen_bloc,cour->val->label);
+				int_list *l1 = gen(gen_bloc);
+				if(l1 == NULL)
 					printf("empty ");
-				while(lkill != NULL)
+				while(l1 != NULL)
 				{
 					//aller chercher
-					if(lkill != NULL)
-						printf("%s \t",getDeclarationNameWithId(dec_list,lkill->val));
+					if(l1 != NULL)
+						printf("%s \t",getDeclarationNameWithId(dec_list,l1->val));
 					else
 						printf("| empty \t");
-					//on ne peut generer qu'une seule variable
-					analysis_block * gen_block=NULL;
-					mk_analysis_block(&gen_block,cour->val->label);
-					int_list *lgen = gen(gen_block);
+
+					l1 = l1->next;
+				}
+				//on ne peut kill qu'une seule variable
+				analysis_block * kill_bloc=NULL;
+					mk_analysis_block(&kill_bloc,cour->val->label);
+					int_list *lgen = kill(kill_bloc);
 					if(lgen != NULL)
 						printf("| %s ",getDeclarationNameWithId(dec_list,lgen->val));
 					else
 						printf("| empty ");
-					lkill = lkill->next;
-				}
 				printf("\n");
 			
 				cour = cour -> next;

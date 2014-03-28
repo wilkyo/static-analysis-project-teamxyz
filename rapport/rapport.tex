@@ -171,7 +171,7 @@ struct flow_list {
 \end{lstlisting}
 
 \paragraph{}
-Ceci représente un block d'analyse pour un label du code.
+Ceci représente un block d'analyse pour un label du code, la liste "list" contient les variables de l'analyse (plus précisément leur identifiant).
 \begin{lstlisting}
 struct analysis_block{
 	int_list *list;
@@ -195,7 +195,11 @@ Chacune de ses structures possèdes ces fonctions afin de les manipuler. Vous tr
 Afin d'initialiser les variables pour l'analyse, nous parcourons l'arbre et générons le flot, init, final, blocks.
 
 \subsubsection{Analyse du code}
-L'analyse suit l'algorithme de MFP.
+L'analyse suit l'algorithme de MFP. Une liste de analysis\_block est créé lors de l'initialisation avec pour chaque liste de variables la valeur NULL (qui correspond à une liste vide ici).
+
+A chaque itération les blocs de la liste sont mis à jour. A la fin du traitement les analysis\_block contiennent la liste des variables pour chaque label du programme.
+
+Afin de trouver les labels du programme inutile il faut reparcourir la liste d'analyse et retirer chaque bloc de type assign qui on une liste de variable empty.
 
 \newpage
 \end{document}
