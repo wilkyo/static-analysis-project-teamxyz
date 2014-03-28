@@ -51,7 +51,7 @@
     urlcolor=cyan,          % color of external links
     linktoc=page
 }
-
+\setcounter{tocdepth}{2}
 \begin{document}
 
 \begin{titlepage}
@@ -87,7 +87,7 @@
 \section{Introduction}
 \input{includes/introduction}
 \section{Répartition des tâches}
-Nous nous sommes répartid les tâches de la façon suivante :
+Nous nous sommes répartis les tâches de la façon suivante :
 \begin{itemize}
 \item Willy c'est occuper de calculer les variables d'initialisations pour l'algorithme depuis l'AST. Ainsi que l'adaptation du compilateur.
 \item Tristan a mis en place l'algorithme d'analyse.
@@ -96,9 +96,10 @@ Nous nous sommes répartid les tâches de la façon suivante :
 
 \section{Réalisation}
 \subsection{Compilateur}
-Afin d'éviter de refaire une compilateur, nous avons repris le compilateur de Willy à réalisé lors du module de compilation du semestre 2. Il générait un \emph{AST (Abstract Syntaxist Tree} pour le langage WHILE. Que nous avons modifié afin qu'il corresponde au modification du langage WHILE du projet.
+Afin d'éviter de refaire une compilateur, nous avons repris le compilateur que Willy à réalisé lors du module de compilation du semestre 2. Il générait un \emph{AST (Abstract Syntaxist Tree)} pour le langage WHILE. Que nous avons modifié afin qu'il corresponde au modification du langage WHILE du projet.
 
 \subsection{Analyseur}
+
 \subsubsection{Structures de données}
 Afin de pouvoir contenir les informations pour et pendant l'analyse. Nous avons mis en place, un certain nombre de structures.
 
@@ -119,6 +120,7 @@ struct declaration {
 	declaration * next;
 };
 \end{lstlisting}
+
 \paragraph{}
 Il s'agit d'une simple liste chaînée d'entier.
 \begin{lstlisting}
@@ -126,12 +128,11 @@ struct int_list {
 	int val;
 	int_list * next;
 };
+\end{lstlisting}
 
-struct block_list {
-	block * val;
-	block_list * next;
-};
-
+\paragraph{}
+Il s'agit d'un block du code à analyser.
+\begin{lstlisting}
 struct block {
 	int label;
 	blockType bType;
@@ -140,25 +141,61 @@ struct block {
 	int_list * variables;
 	char * str;
 };
+\end{lstlisting}
 
-struct flow_list {
-	flow * val;
-	flow_list * next;
+\paragraph{}
+C'est une liste chaînée qui contient l'ensemble des blocks
+\begin{lstlisting}
+struct block_list {
+	block * val;
+	block_list * next;
 };
+\end{lstlisting}
 
+\paragraph{}
+Il représente un élément du flot.
+\begin{lstlisting}
 struct flow {
 	int start;
 	int end;
 };
+\end{lstlisting}
+
+\paragraph{}
+Cette une liste chaînée qui contient le flot du programme à analyser.
+\begin{lstlisting}
+struct flow_list {
+	flow * val;
+	flow_list * next;
+};
+\end{lstlisting}
+
+\paragraph{}
+Ceci représente un block d'analyse pour un label du code.
+\begin{lstlisting}
 struct analysis_block{
 	int_list *list;
 	int label;
 };
+\end{lstlisting}
 
+\paragraph{}
+C'est une liste chaînée qui contient l'ensemble des blocks d'analyse.
+\begin{lstlisting}
 struct analysis_list{
 	analysis_block *block;
 	analysis_list* next;
 };
 \end{lstlisting}
+
+\paragraph{}
+Chacune de ses structures possèdes ces fonctions afin de les manipuler. Vous trouverez l'ensemble des ses fonctions dans les .h associés.
+
+\subsubsection{Initialisation des variables de l'analyse}
+Afin d'initialiser les variables pour l'analyse, nous parcourons l'arbre et générons le flot, init, final, blocks.
+
+\subsubsection{Analyse du code}
+L'analyse suit l'algorithme de MFP.
+
 \newpage
 \end{document}
