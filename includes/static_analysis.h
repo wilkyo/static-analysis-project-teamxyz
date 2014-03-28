@@ -133,6 +133,7 @@ void print_flows(flow_list * flows);
 // Return 1 if success
 int start_static_analysis(declaration * vars, int initial, int_list * finals, flow_list * flows, flow_list * flowsR, block_list * blocks);
 void print_kill_gen(block_list * list, declaration *dec_list);
+void print_variables( declaration *vars);
 
 #endif
 

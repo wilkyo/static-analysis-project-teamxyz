@@ -732,16 +732,30 @@ void print_flows(flow_list * list) {
 	}
 }
 
+void print_variables( declaration *vars)
+{
+	declaration *cour = vars;
+	while(cour != NULL)
+	{
+		printf("(%d,%s)",cour->vId, cour->vName);
+		cour = cour->next;
+	}
+}
+
 // Return 1 if success
 int start_static_analysis(declaration * vars, int initial, int_list * finals, flow_list * flows, flow_list * flowsR, block_list * blocks) {
 
 	//print kill et gen
 	
-	print_kill_gen(blocks,vars);
+	//print_kill_gen(blocks,vars);
 
 	analysis_list* results = NULL;
 	results = MFP(flowsR,finals);
-	return 0;
+	//affichage de la liste de resultat
+	printf("resultat  (label, list_var_id): \n");
+	print_variables(vars);
+	print_analysis_list(results);
+	return 1;
 }
 
 void print_kill_gen(block_list * list, declaration *dec_list)

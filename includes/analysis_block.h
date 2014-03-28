@@ -29,4 +29,7 @@ void rm_analysis_block(analysis_block ** block);
 	si le label n'existe pas dans la liste retourne NULL
 */
 analysis_block* get_analysis_block(analysis_list *_list, int _label);
+
+void print_analysis_block(analysis_block *b);
+void print_analysis_list(analysis_list * l);
 #endif

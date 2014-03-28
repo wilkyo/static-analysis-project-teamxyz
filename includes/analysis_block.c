@@ -100,3 +100,40 @@ analysis_block* get_analysis_block(analysis_list *_list, int _label)
 	}
 	return NULL;
 }
+
+void print_analysis_block(analysis_block *b)
+{
+	if(b != NULL)
+	{
+		if( b->label != 0)
+		{
+			printf("(%d,",b->label);
+		}
+		if(b->list != NULL)
+		{
+			int_list *cour = b->list;
+			while(cour != NULL)
+			{
+				printf("%d ", cour->val);
+				cour = cour->next;
+			}
+					
+			
+		}
+		else
+		{
+			printf("empty ");
+		}
+		printf(")\n");
+	}
+}
+
+void print_analysis_list(analysis_list *l)
+{
+	analysis_list *cour = l;
+	while(cour != NULL)
+	{
+		print_analysis_block(cour->block);
+		cour = cour->next;
+	}
+}
