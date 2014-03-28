@@ -740,6 +740,7 @@ void print_variables( declaration *vars)
 		printf("(%d,%s)",cour->vId, cour->vName);
 		cour = cour->next;
 	}
+	printf("\n");
 }
 
 // Return 1 if success
@@ -752,8 +753,9 @@ int start_static_analysis(declaration * vars, int initial, int_list * finals, fl
 	analysis_list* results = NULL;
 	results = MFP(flowsR,finals);
 	//affichage de la liste de resultat
-	printf("resultat  (label, list_var_id): \n");
+	printf("liste des variables : \n");
 	print_variables(vars);
+	printf("resultat  (label, list_var_id): \n");
 	print_analysis_list(results);
 	return 1;
 }
