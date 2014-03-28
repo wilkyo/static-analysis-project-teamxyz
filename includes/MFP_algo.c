@@ -45,7 +45,7 @@ analysis_list* MFP(flow_list *_flows, int_list *E)
 	{
 		cour = pop_flow_list(&W);
 		
-		printf("cour: (%d, %d) \n", cour->start, cour->end);
+		//printf("cour: (%d, %d) \n", cour->start, cour->end);
 
 		analysis_block *b1 = get_analysis_block(analysis_l,cour->start);
 		analysis_block *b2 = get_analysis_block(analysis_l,cour->end);
@@ -54,7 +54,7 @@ analysis_list* MFP(flow_list *_flows, int_list *E)
 		//DEBUG
 		if(b1 == NULL) 
 		{
-			printf("b1 NULL %d\n", cour->start);
+			//printf("b1 NULL %d\n", cour->start);
 			analysis_block *temp=NULL;
 			mk_analysis_block(&temp, cour->start);
 			add_analysis_list(&analysis_l,temp);
@@ -62,7 +62,7 @@ analysis_list* MFP(flow_list *_flows, int_list *E)
 		}
 		if(b2 == NULL) 
 		{
-			printf("b2 NULL %d\n", cour->end);
+			//printf("b2 NULL %d\n", cour->end);
 			analysis_block *temp=NULL;
 			mk_analysis_block(&temp, cour->end);
 			add_analysis_list(&analysis_l,temp);
@@ -98,9 +98,9 @@ analysis_list* MFP(flow_list *_flows, int_list *E)
 
 	/*------------------- resultat ------------------------------*/
 
-	printf("Fin itérations\n");
+	//printf("Fin itérations\n");
 	//inutile ici, vu que l'on travaille avec une seule liste
-	printf("END MFP\n");
+	//printf("END MFP\n");
 	return analysis_l;
 }
 
