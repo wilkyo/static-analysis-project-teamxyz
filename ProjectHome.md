@@ -1,0 +1,1 @@
+The aim is to develop a compiler to make a static analysis of source code.
